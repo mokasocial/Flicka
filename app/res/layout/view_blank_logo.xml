@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@drawable/bg"
+	android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center">
+    
+    <LinearLayout
+    	android:layout_width="240px"
+    	android:layout_height="97px"
+    	android:orientation="vertical"
+    	android:gravity="center">
+    	
+      	<ImageView
+	      	android:src="@drawable/flicka_logo_extra"
+			android:layout_width="240px"
+			android:layout_height="97px"
+		/>
+		
+	    <ListView android:id="@id/android:list"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:drawSelectorOnTop="false"
+               android:visibility="gone" />       
+		
+    </LinearLayout>	
+</LinearLayout>

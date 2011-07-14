@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/opacity_25_green">
+
+	    <TextView
+	        android:id="@+id/username"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:textStyle="bold"
+	        android:textSize="14px"
+	        android:textColor="#A1C05E"
+	        android:singleLine="true"
+	        android:layout_centerVertical="true"
+	    />
+    
+</RelativeLayout>

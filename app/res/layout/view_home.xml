@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@drawable/bg"
+	android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center">
+
+    <ImageView
+        android:id="@+id/flicka_logo"
+      	android:src="@drawable/flicka_logo_big"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+    	android:layout_marginBottom="5dp"
+    	android:layout_alignParentTop="true"
+    	android:layout_centerHorizontal="true"
+    	android:paddingTop="44dip"/>
+    	
+    <TextView
+    	android:id="@+id/home_welcome_msg"
+   		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Word up!"
+		android:textColor="#FFFFFF"
+		android:textSize="16sp"
+		android:layout_marginBottom="30dp"
+        android:layout_centerHorizontal="true"
+        android:maxLines="1"
+        android:layout_below="@id/flicka_logo"/>
+	
+	<RelativeLayout
+		android:id="@+id/main_home_nav"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:layout_below="@id/home_welcome_msg"
+		android:layout_centerHorizontal="true">
+		
+			<!-- Photos Activity -->
+			<Button
+		    	android:id="@+id/photostream_button_bg"
+			    android:layout_marginRight="15dp"
+			    android:onClick="showPhotosStreamView"
+			    style="@style/home_menu_button"
+			    android:text="@string/photo_stream"
+			    android:drawableTop="@drawable/new_window_32x32" />
+			
+			<!-- favorites -->
+			<Button
+		    	android:id="@+id/favorites_button_bg"
+			    android:layout_marginRight="15dp"
+			    android:onClick="showFavoritesView"
+			    style="@style/home_menu_button"
+			    android:text="@string/favorites"
+			    android:drawableTop="@drawable/star32"
+			    android:layout_toRightOf="@id/photostream_button_bg" />
+			
+			<!-- search -->
+			<Button
+		    	android:id="@+id/search_button_bg"
+			    android:onClick="showSearchView"
+			    style="@style/home_menu_button"
+			    android:text="@string/search"
+			    android:drawableTop="@drawable/search32"
+			    android:layout_toRightOf="@id/favorites_button_bg" />
+			
+			<!-- groups -->
+			<Button
+		    	android:id="@+id/groups_button_bg"
+			    android:layout_marginTop="15dp"
+			    android:layout_marginRight="15dp"
+			    android:onClick="showGroupsView"
+			    style="@style/home_menu_button"
+			    android:text="@string/groups"
+			    android:drawableTop="@drawable/users32"
+			    android:layout_below="@id/photostream_button_bg" />
+			
+			<!-- contact -->
+			<Button
+		    	android:id="@+id/contact_button_bg"
+			    android:layout_marginRight="15dp"
+			    android:layout_marginTop="15dp"
+			    android:onClick="showContactsView"
+			    style="@style/home_menu_button"
+			    android:text="@string/contacts"
+			    android:drawableTop="@drawable/contactcard32"
+			    android:layout_below="@id/photostream_button_bg"
+			   	android:layout_toRightOf="@id/groups_button_bg" />
+			
+			<!-- share -->
+			<Button
+		    	android:id="@+id/upload_button_bg"
+			    android:layout_marginTop="15dp"
+			    android:onClick="startSharing"
+			    style="@style/home_menu_button"
+			    android:text="@string/share"
+			    android:drawableTop="@drawable/boxupload32"
+			    android:layout_below="@id/photostream_button_bg"
+			   	android:layout_toRightOf="@id/contact_button_bg" />
+		
+	</RelativeLayout>
+		
+	<SlidingDrawer
+	    android:id="@+id/home_sliding_drawer"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:handle="@+id/sliding_drawer_handle"
+	    android:content="@+id/sliding_drawer_content">
+	        
+       	<ImageView
+	    	android:id="@id/sliding_drawer_handle"
+        	android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:padding="10dip"
+		    android:background="#66000000"
+		    android:src="@drawable/pin_32x32"
+		    android:scaleType="center"
+		    android:gravity="center" />
+			    
+		<RelativeLayout
+			android:id="@+id/sliding_drawer_content"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:background="#c0000000">
+	
+		    <ListView
+		        android:id="@id/android:list"
+		        android:layout_width="fill_parent"
+		        android:layout_height="fill_parent" 
+		        android:background="@android:color/transparent" />
+		     
+     		<TextView 
+     			android:id="@id/android:empty"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="@android:color/transparent"
+                android:gravity="center"
+                android:text="@string/no_new_notifications" />
+		           
+        </RelativeLayout>
+	
+	</SlidingDrawer>
+	
+</RelativeLayout>

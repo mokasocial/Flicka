@@ -1,0 +1,11 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/breadcrumb_option"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="10dip"
+    android:paddingBottom="10dip"
+    android:singleLine="true"
+    android:textSize="14px"
+    android:textStyle="bold"
+    android:textColor="#FFFFFF"
+    android:gravity="center"/>

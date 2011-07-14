@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical"
+	android:gravity="center">
+	
+	<RelativeLayout
+	   	android:id="@+id/drawer_loading"
+	   	android:layout_width="wrap_content"
+	   	android:layout_height="wrap_content"
+	   	android:gravity="center"
+	   	android:layout_centerHorizontal="true"
+	   	android:layout_centerVertical="true"
+	   	android:padding="10dip"
+	   	android:background="@drawable/opacity_25">
+	   	
+	   	<ImageView
+	   		android:id="@+id/drawer_loading_icon"
+	   		android:layout_width="18dip"
+	   		android:layout_height="18dip"
+	   		android:layout_marginRight="5dip"
+	   		android:src="@drawable/progress_small"/>
+	   		
+	  	<TextView
+	   		android:id="@+id/drawer_loading_text"
+			android:textSize="12px"
+			android:layout_toRightOf="@id/drawer_loading_icon"
+			android:lines="1"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 		
+			style="@style/default_text" />
+	   			
+	</RelativeLayout>
+	  
+	<RelativeLayout
+	   	android:id="@+id/drawer_failed_load"
+	   	android:layout_width="wrap_content"
+	   	android:layout_height="wrap_content"
+	   	android:gravity="center"
+	   	android:layout_centerHorizontal="true"
+	   	android:layout_centerVertical="true"
+	   	android:padding="10dip"
+	   	android:background="@drawable/opacity_25"
+	   	android:visibility="gone">
+	   	
+	   	<TextView
+			android:textSize="14px"
+			android:lines="1"
+			android:text="@string/loading_failed"  			
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 		
+			style="@style/default_text" />
+	   			
+	</RelativeLayout>
+	
+	<RelativeLayout
+	   	android:id="@+id/drawer_no_display"
+	   	android:layout_width="wrap_content"
+	   	android:layout_height="wrap_content"
+	   	android:gravity="center"
+	   	android:layout_centerHorizontal="true"
+	   	android:layout_centerVertical="true"
+	   	android:padding="10dip"
+	   	android:background="@drawable/opacity_25"
+	   	android:visibility="gone">
+	   	
+	   	<TextView
+			android:textSize="14px"
+			android:lines="1"
+			android:text="@string/loading_no_display"  			
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 		
+			style="@style/default_text" />
+	   			
+	</RelativeLayout>
+	
+</LinearLayout>   

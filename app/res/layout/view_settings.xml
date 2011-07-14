@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@drawable/bg"
+	android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    
+    <include android:id="@+id/main_header" layout="@layout/header" />
+    
+    <ScrollView
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:id="@+id/settings_content">
+    	
+    	<LinearLayout
+    		android:orientation="vertical"
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent">
+    
+		  	<RelativeLayout 
+		  		xmlns:android="http://schemas.android.com/apk/res/android"
+		  		android:background="@drawable/opacity_25"
+			    android:layout_width="fill_parent"
+			    android:layout_marginLeft="10dip"
+			    android:layout_marginRight="10dip"
+			    android:layout_height="wrap_content"
+			    android:padding="10dip">
+		  
+			    <TextView 
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:textColor="#FFFFFF"
+		            android:text="@string/settings_deauthorize_device"
+			    />
+			
+			    <Button 
+			    	android:id="@+id/removeAuthTokenId"
+			        android:layout_width="100dip"
+			        android:layout_height="45dip"
+			        android:layout_alignParentRight="true"
+			        android:onClick="deauthorizeDevice"
+			        android:text="@string/option_remove"
+			    />
+			  
+			  </RelativeLayout>
+		  
+		  	  <RelativeLayout 
+					xmlns:android="http://schemas.android.com/apk/res/android"
+					android:background="@drawable/opacity_25"
+					android:layout_width="fill_parent"
+				 	android:layout_marginLeft="10dip"
+				  	android:layout_marginRight="10dip"
+				   	android:layout_height="wrap_content"
+				   	android:padding="10dip"
+				   	android:layout_marginTop="10dip">
+		  
+		  	   	<TextView 
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:textColor="#FFFFFF"
+		            android:text="@string/settings_clear_cached_data"
+			    />
+			
+			    <Button 
+			    	android:id="@+id/flushCachedData"
+			        android:layout_width="100dip"
+			        android:layout_height="45dip"
+			        android:layout_alignParentRight="true"
+			        android:onClick="flushCachedData"
+			        android:text="@string/option_clear"
+			    />
+		    
+		    </RelativeLayout>
+		  
+		  	<RelativeLayout 
+				xmlns:android="http://schemas.android.com/apk/res/android"
+				android:background="@drawable/opacity_25"
+			    android:layout_width="fill_parent"
+	    	    android:layout_marginLeft="10dip"
+		    	android:layout_marginRight="10dip"
+			    android:layout_height="wrap_content"
+			    android:padding="10dip"
+			    android:layout_marginTop="10dip">
+		  
+		  	   	<TextView 
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:textColor="#FFFFFF"
+		            android:text="@string/settings_contact_update_notify"
+			    />
+			
+				<CheckBox 
+					android:id="@+id/contact_updates_notify_cb"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:onClick="updateContactUpdateNotifySetting"
+				/>
+		    
+		    </RelativeLayout>
+		   
+		  	<RelativeLayout 
+				xmlns:android="http://schemas.android.com/apk/res/android"
+				android:background="@drawable/opacity_25"
+			    android:layout_width="fill_parent"
+	    	    android:layout_marginLeft="10dip"
+		    	android:layout_marginRight="10dip"
+			    android:layout_height="wrap_content"
+			    android:padding="10dip"
+			    android:layout_marginTop="10dip">
+		  
+		  	   	<TextView 
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:textColor="#FFFFFF"
+		            android:text="@string/settings_use_fullscreen"
+			    />
+			
+				<CheckBox 
+					android:id="@+id/use_full_screen_cb"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:onClick="updateUseFullscreenSetting"
+				/>
+		    
+		    </RelativeLayout>
+		    
+	   	  	<RelativeLayout 
+				xmlns:android="http://schemas.android.com/apk/res/android"
+				android:background="@drawable/opacity_25"
+			    android:layout_width="fill_parent"
+	    	    android:layout_marginLeft="10dip"
+		    	android:layout_marginRight="10dip"
+			    android:layout_height="wrap_content"
+			    android:padding="10dip"
+			    android:layout_marginTop="10dip">
+		  
+		  	   	<TextView 
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:textColor="#FFFFFF"
+		            android:text="@string/settings_use_large_photos"
+			    />
+			
+				<CheckBox 
+					android:id="@+id/use_large_photos_cb"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:onClick="updateUseLargePhotosSetting"
+				/>
+		    
+		    </RelativeLayout>
+		    
+   	   	  	<RelativeLayout 
+				xmlns:android="http://schemas.android.com/apk/res/android"
+				android:background="@drawable/opacity_25"
+			    android:layout_width="fill_parent"
+	    	    android:layout_marginLeft="10dip"
+		    	android:layout_marginRight="10dip"
+			    android:layout_height="wrap_content"
+			    android:padding="10dip"
+			    android:layout_marginTop="10dip">
+		  
+		  	   	<TextView 
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:textColor="#FFFFFF"
+		            android:text="@string/settings_auto_load_photos"
+			    />
+			
+				<CheckBox 
+					android:id="@+id/use_auto_load_photos_cb"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:onClick="updateUseAutoLoadPhotosSetting"
+				/>
+		    
+		    </RelativeLayout>
+	    
+	    </LinearLayout>
+
+	</ScrollView>   
+  
+</LinearLayout>

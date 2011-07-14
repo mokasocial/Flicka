@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@drawable/bg"
+	android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/body">
+    
+    <include android:id="@+id/header" layout="@layout/header" />
+    
+	 <ScrollView
+	 	android:id="@+id/upload_container"
+	 	android:layout_height="fill_parent"
+	 	android:layout_width="fill_parent"
+	 	android:layout_marginBottom="50dip"
+	 	android:layout_below="@id/header"
+	 	android:padding="5dip">
+	
+	 <RelativeLayout
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+			
+		<EditText
+		    android:id="@+id/image_title"
+		    android:maxLines="1"
+		    android:layout_height="wrap_content"
+   	   		android:layout_width="fill_parent"
+   	   		android:inputType="textAutoCorrect|text"
+		    android:hint="@string/upload_title_hint"
+		    android:layout_marginTop="10dp" />		
+
+		
+		<EditText
+		    android:id="@+id/image_description"
+		    android:inputType="textMultiLine|textAutoCorrect|text"
+		    android:maxLines="3"
+		    android:minLines="3"
+	   		android:layout_width="fill_parent"
+	   		android:layout_height="wrap_content"
+	   		android:layout_below="@id/image_title"    
+		    android:hint="@string/upload_description_hint" />
+		    
+		
+		<EditText
+		    android:id="@+id/image_tags"
+		    android:maxLines="1"
+	   		android:layout_width="fill_parent"
+	   		android:layout_height="wrap_content"	    
+		    android:hint="@string/upload_tags_hint"
+		    android:layout_below="@id/image_description"/>
+		
+		<CheckBox 
+			android:id="@+id/image_public_cb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:checked="true"
+			android:text="@string/upload_make_public_text"
+			android:layout_below="@id/image_tags"
+			style="@style/default_box"
+			android:gravity="right|center_vertical"
+		/>  
+	    
+	    <RelativeLayout 
+			xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/geo_box"
+			android:background="@drawable/opacity_25"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_below="@id/image_public_cb"
+		    style="@style/default_box">
+		    
+	  	   	<TextView 
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_centerVertical="true"
+	            android:textColor="#FFFFFF"
+	            android:text="@string/upload_geo_location_text"
+		    />
+		
+			<CheckBox 
+				android:id="@+id/image_geo_location_cb"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:checked="true"
+				android:layout_alignParentRight="true"
+				android:layout_centerVertical="true"
+			/>  
+	    
+	    </RelativeLayout>
+    
+    </RelativeLayout>
+    
+    </ScrollView>
+    
+    <Button
+    	android:id="@+id/upload_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="processUpload"
+        android:text="@string/upload_button"
+        android:layout_below="@id/upload_container"
+        android:layout_marginTop="-50dip" />
+		        	
+</RelativeLayout>

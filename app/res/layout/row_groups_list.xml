@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/opacity_25">
+
+    <ImageView
+        android:id="@+id/usericon"
+        android:layout_width="62px"
+        android:layout_height="fill_parent"
+        android:minWidth="62px"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="12dip"
+        android:src="@drawable/loading_user_icon"
+        android:background="@drawable/opacity_25"
+        android:padding="6px"
+    />
+    
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:gravity="center"
+	    android:layout_toRightOf="@id/usericon">
+
+	    <TextView
+	        android:id="@+id/username"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:textStyle="bold"
+	        android:textSize="14px"
+	        android:textColor="#A1C05E"
+	        android:singleLine="true"
+	        android:ellipsize="marquee"
+	        android:layout_marginTop="8dip"
+	    />
+	    
+	    <TextView
+	    	android:id="@+id/userlinetwo"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content" 
+	        android:singleLine="true"
+	        android:ellipsize="marquee"
+	        android:layout_below="@id/username"
+	        android:textSize="12px"
+	        android:textColor="#FFFFFF"
+	    />
+	    
+   	</RelativeLayout>
+    
+</RelativeLayout>

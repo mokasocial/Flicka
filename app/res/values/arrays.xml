@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string-array name="breadcrumb">
+	    <item>Recent Uploads</item>
+	    <item>Find Your Friends</item>
+	</string-array>
+	
+    <string-array name="search_terms">
+        <item>Photos</item>
+        <item>Groups</item>
+        <item>People</item>
+        <item>Places</item>
+    </string-array>
+    
+    <string-array name="favorites_dropdown">
+    	<item>Slideshow</item>
+    	<item>Your favorites</item>
+    </string-array>
+    
+    <string-array name="photostream_dropdown">
+    	<item>Slideshow</item>
+    	<item>Your photos</item>
+    </string-array>
+
+</resources>

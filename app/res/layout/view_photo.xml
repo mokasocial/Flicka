@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/main_activity_container"
+	android:layout_height="fill_parent"
+	android:layout_width="fill_parent"
+	android:background="#00000000">
+    	
+    <include android:id="@+id/loading_activity" layout="@layout/loading_activity" />  
+	   
+   	<ImageView
+    	xmlns:android="http://schemas.android.com/apk/res/android" 
+   		android:id="@+id/view_photo_small"
+   		android:layout_width="wrap_content"
+   		android:layout_height="wrap_content"
+   		android:layout_gravity="center"
+	 />
+	 
+	 <RelativeLayout
+	 	android:id="@+id/image_details"
+	 	android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="10dip"
+		android:layout_gravity="top"
+		android:padding="12dip"
+		android:background="@drawable/opacity_40"
+		android:visibility="gone">
+		
+	    <!-- Image name -->         
+		<TextView
+			 android:id="@+id/image_name"
+			 android:layout_width="wrap_content"
+			 android:layout_height="wrap_content"
+			 android:textSize="14px"
+			 android:textStyle="bold"
+			 android:textColor="#ffffffff"
+			 android:layout_marginRight="35px"
+			 android:layout_alignParentTop="true"
+			 android:layout_marginBottom="7dip"
+		/>
+		
+		<!-- Image description -->
+	 	<TextView
+			 android:id="@+id/image_description"
+			 android:layout_width="wrap_content"
+			 android:layout_height="wrap_content"
+			 android:layout_below="@id/image_name"
+			 android:layout_alignWithParentIfMissing="true"
+			 android:layout_marginRight="35px"
+			 android:layout_marginBottom="7dip"
+	         android:textSize="12px"
+			 android:textColor="#ffffffff"/>
+			 
+		<!--Details--> 
+		    
+    	<TextView
+	    	android:id="@+id/image_date_posted"
+        	style="@style/photo_detail_item"
+		    android:layout_below="@id/image_description" />
+		    
+		<TextView
+	    	android:id="@+id/image_date_taken"
+        	style="@style/photo_detail_item"
+		    android:layout_below="@id/image_date_posted" />
+		    
+		<TextView
+	    	android:id="@+id/image_date_added"
+        	style="@style/photo_detail_item"
+		    android:layout_below="@id/image_date_taken" />
+		    
+		<TextView
+	    	android:id="@+id/image_view_count"
+        	style="@style/photo_detail_item"
+		    android:layout_below="@id/image_date_added" />
+		
+		<!-- Favorite -->
+		<Button 
+		    android:id="@+id/image_fave_icon"
+		 	android:layout_width="wrap_content"
+		 	android:layout_height="wrap_content"
+		 	android:layout_marginLeft="-35px"
+           	android:layout_alignParentTop="true"
+           	android:layout_alignParentRight="true"
+			android:background="@drawable/icon_favorite_false"
+			android:visibility="gone"
+			android:onClick="updateFaveStatus"/>
+			 
+	</RelativeLayout>
+	
+	<SlidingDrawer
+	    android:id="@+id/photo_sliding_drawer"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:handle="@+id/sliding_drawer_handle"
+	    android:state_focused="false"
+	    android:visibility="gone"
+	    android:content="@+id/sliding_drawer_content">
+	        
+       	<ImageView
+	    	android:id="@id/sliding_drawer_handle"
+        	android:layout_width="fill_parent"
+        	android:scaleType="center"
+	        android:layout_height="wrap_content"
+	        android:padding="10dip"
+	        android:background="#66000000"
+	        android:src="@drawable/chat_alt_fill_24x24"
+		    android:gravity="center" />
+		    			    
+		<RelativeLayout
+			android:id="@+id/sliding_drawer_content"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:background="#c0000000">
+	
+			<!--Spacer-->
+		    <ListView
+		        android:id="@id/android:list"
+		        android:layout_width="fill_parent"
+		        android:layout_height="fill_parent" 
+		        android:background="@android:color/transparent" />
+		     
+		    <include android:id="@+id/loading_drawer" layout="@layout/loading_drawer" /> 
+		     
+    		<RelativeLayout
+				android:id="@+id/sliding_drawer_loadable_content"
+				android:layout_width="fill_parent"
+				android:layout_height="fill_parent"
+				android:background="@android:color/transparent"
+				android:layout_marginBottom="145dp"
+				android:visibility="gone">
+				 
+				<!-- Current Comments -->
+			    <ListView
+			        android:id="@+id/image_comments"
+			        android:layout_width="fill_parent"
+			        android:layout_height="fill_parent" 
+			        android:background="@android:color/transparent"
+			        android:clickable="false"
+			        android:longClickable="false"
+			        android:focusable="false"
+			        android:padding="5dp"
+			        android:layout_below="@id/image_view_count" />
+			        
+	        </RelativeLayout>
+			
+		    <!-- Submit a comment -->
+       		<RelativeLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentBottom="true"
+				android:background="@android:color/transparent"
+				android:layout_marginTop="-145dp"
+				android:layout_below="@id/sliding_drawer_loadable_content">
+				
+				<EditText
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+				    android:id="@+id/comment_box"
+				    android:inputType="textMultiLine"
+				    android:minLines="3"
+				    android:maxLines="3"
+				    android:hint="Enter comment" />
+				    
+				<Button
+					android:id="@+id/comment_button"
+					android:layout_width="fill_parent"
+					android:layout_height="45dip"
+					android:layout_marginTop="10dip"
+					android:onClick="saveComment"
+					android:text="Save Comment"
+					android:layout_below="@id/comment_box" />
+					
+			</RelativeLayout>
+			    
+        </RelativeLayout>
+	
+	</SlidingDrawer>
+	
+</FrameLayout>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@drawable/bg"
+	android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    
+    <include android:id="@+id/header" layout="@layout/header" />
+
+	<RelativeLayout
+		android:id="@+id/search_terms_box"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/header"
+		style="@style/default_box">
+	
+		<EditText
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+		    android:id="@+id/search_terms"
+		    android:inputType="text"
+		    android:hint="Enter search terms" />
+	
+	</RelativeLayout>
+	
+	<RelativeLayout
+		android:id="@+id/search_type_spinner_box"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/search_terms_box"
+		style="@style/default_box">
+	
+	    <Spinner
+	    	android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+	        android:id="@+id/search_type_spinner"
+	        android:drawSelectorOnTop="true"/>
+
+	</RelativeLayout>
+	
+	<RelativeLayout
+		android:id="@+id/search_advanced"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/search_type_spinner_box"
+		android:padding="5dip"
+		style="@style/default_box">
+		
+		<TableLayout
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:stretchColumns="1">
+			
+			<TableRow>
+				
+				<TextView
+					android:layout_column="1"
+					android:text="Search type"
+					android:padding="3dip"
+					style="@style/default_text_big" />
+					
+				<RadioGroup
+			      android:layout_width="fill_parent"
+			      android:layout_height="wrap_content"
+			      android:orientation="vertical"
+			      android:gravity="left">
+			      
+			      <RadioButton android:id="@+id/radio_full_text"
+			          android:layout_width="wrap_content"
+			          android:layout_height="wrap_content"
+			          android:text="Full text"
+			          style="@style/default_text"
+			          android:checked="true" />
+			      
+			      <RadioButton android:id="@+id/radio_tags_only"
+			          android:layout_width="wrap_content"
+			          android:layout_height="wrap_content"
+			          android:text="Tags only"
+			          style="@style/default_text"
+			          android:checked="false" />
+			    
+			    </RadioGroup>
+				
+			</TableRow>
+			
+		</TableLayout>
+	
+	</RelativeLayout>
+	
+	<Button
+    	android:id="@+id/search_button"
+        android:layout_width="fill_parent"
+        android:layout_height="45dip"
+        android:layout_margin="10dip"
+        android:onClick="search"
+        android:text="Search!"
+        android:layout_below="@id/search_advanced"/>
+	    
+</RelativeLayout>

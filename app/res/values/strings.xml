@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_developer">MokaSocial, LLC</string>
+    <string name="app_name">Flicka</string>
+    <string name="inject_permission">inject_permission</string>
+    
+    <string name="about_title">About Flicka v{VERSION}</string>
+    <string name="about_content">Flicka is Flickr&#8482; and Android&#8482; combined. This is licensed software developed by MokaSocial, LLC. &#169; 2009, 2010, all rights reserved.\n\nFlickr&#8482; and Android&#8482; are copyright by their respective owners and are not associated with, nor endorsed by Flicka.\n\nThis product uses the Flickr API but is not endorsed or certified by Flickr&#8482;.\n\nVisit us at mokasocial.com, flicka.mobi</string>    
+    
+    <string name="new_user_begin">Begin!</string>
+    
+    <string name="modal_auth_launch_browser">Flicka needs you to connect to your Flickr account so you can do things like save, change, delete, and view content on your Android device. Without these permissions you cannot use Flicka.\n\nA browser window will open allowing you to login to Flickr at which point you will be asked to allow Flicka to do this.\n\nDo you want to continue?\n</string>
+    <string name="modal_auth_launch_browser_title">Authorize Flicka</string>
+    <string name="modal_auth_browser_complete">You\'ve returned from the browser. If you\'ve given Flicka permission to access your Flickr account, continue.\n\nCancelling at this point will interrupt the authorization process and your Android device will not be able to use Flicka.\n</string>
+    <string name="modal_auth_browser_complete_title">Continue?</string>
+    
+    <string name="modal_settings_deauthorize">Flicka has been deauthorized on this device. Please visit the Flickr website and remove Flicka from your list of allowed applications.</string>
+    
+    <string name="modal_photo_set_wallpaper_query">You want to use the entire image or crop it?</string>
+    <string name="modal_share_upload_camera_query">You want to upload an image or take a picture?</string>
+    
+    <string name="progress_fetch_token">Please wait...</string>
+    <string name="progress_fetch_token_title">Saving Your Authorization</string>
+    
+    <string name="progress_network_test">Testing network. Please wait...</string>
+    <string name="progress_network_test_title">Network Test</string>
+    <string name="progress_getting_favorites">Getting favorites...</string>
+    <string name="progress_loading_favorites">Loading favorites...</string>
+    <string name="progress_getting_contacts">Getting contacts...</string>
+    <string name="progress_loading_contacts">Loading contacts...</string>
+    <string name="progress_getting_groups">Getting groups...</string>
+    <string name="progress_loading_groups">Loading groups...</string>
+    <string name="progress_getting_user">Getting user...</string>
+    <string name="progress_loading_user">Loading user...</string>
+    <string name="progress_getting_photo">Getting photo...</string>
+    <string name="progress_loading_photo">Loading photo...</string>
+    <string name="progress_getting_photos">Getting photos...</string>
+    <string name="progress_loading_photos">Loading photos...</string>
+    <string name="progress_getting_group_info">Getting group info...</string>
+    <string name="progress_loading_group_info">Loading group info...</string>
+    <string name="progress_search_photos">Searching photos...</string>
+    <string name="progress_search_groups">Searching groups...</string>
+    <string name="progress_search_places">Searching places...</string>
+    <string name="progress_loading_places">Loading places...</string>
+    <string name="loading_failed">Failed to load</string>
+    <string name="loading_no_display">Nothing to display</string>
+    <string name="no_new_notifications">No new notifications</string>
+    <string name="progress_getting_comments">Getting comments...</string>
+    <string name="progress_loading_comments">Loading comments...</string>
+    
+    <string name="option_yes">Yes</string>
+    <string name="option_no">No</string>
+    <string name="option_okay">Okay</string>
+    <string name="option_continue">Continue</string>
+    <string name="option_cancel">Cancel</string>
+    <string name="option_retry">Retry</string>
+    <string name="option_remove">Remove</string>
+    <string name="option_clear">Clear</string>
+    <string name="option_full">Full</string>
+    <string name="option_crop">Crop</string>
+    <string name="option_upload">Upload</string>
+    <string name="option_camera">Camera</string>
+    
+    <string name="key_val">:</string>
+   	<string name="owned_by">Added by</string>
+   	<string name="date_taken">Taken on</string>
+   	<string name="date_posted">Posted on</string>
+   	<string name="date_added">Added on</string>
+   	<string name="date_updated">Updated on</string>
+   	<string name="view_count">Views</string>
+   	
+    
+    <string name="generic_welcome_msg">Hello {USRNAME}!</string>
+    <string name="generic_user_name">Flicka user</string>
+    <string name="generic_breadcrumb_name">You</string>
+    
+    <string name="failure_network_test">We\'re unable to connect to Flickr. Please check your network settings or try again later.\n</string>
+    <string name="failure_network_test_title">Network error</string>
+    
+   	<string name="failure_save_auth_token">A problem occurred while trying to save your authorization token.</string>
+    <string name="failure_save_auth_token_title">Token error</string>
+    
+    <string name="failure_generic">Something went wrong! If the problem persists, please let the developers know! Please exit Flicka and try again.</string>
+    <string name="failure_generic_title">Generic error</string>
+
+    <string name="home_welcome_msg">Word up {USRNAME}!</string>    
+    <string name="contacts_none_to_display">You don\'t have any contacts!</string>
+    <string name="settings_deauthorize_device">Deauthorize this device</string>
+    <string name="settings_clear_cached_data">Clear cached data</string>
+    <string name="settings_clear_cached_data_success">Cached data cleared</string>
+    <string name="settings_contact_update_notify">Contact update notifications</string>
+    <string name="settings_use_fullscreen">Use full screen</string>
+    <string name="settings_use_large_photos">Use large photos when possible</string>
+    <string name="settings_auto_load_photos">Auto load more photos when scrolling</string>
+    
+    <string name="search_total_count">Found</string>
+    
+    <string name="menu_home">Home</string>
+    <string name="menu_info">Info</string>
+    <string name="menu_notify">Notifications</string>
+    <string name="menu_about">About</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_loading_more_faves">Load more favorites</string>
+    <string name="menu_loading_more_photos">Load more photos</string>
+    <string name="menu_add_to_faves">Add to favorites</string>
+    <string name="menu_load_more_search_results">Load more search results</string>
+    <string name="menu_load_more_results">Load more results</string>
+    <string name="menu_start_slide_show">Start slide show</string>
+    
+    <string name="photo_menu_title">Photo menu</string>
+    <string name="photo_menu_set_wallpaper">Set wallpaper</string>
+    <string name="photo_menu_see_owner">See owner\'s profile</string>
+    <string name="photo_menu_share">Share this photo</string>
+    <string name="photo_set_ok">Wallpaper set successfully</string>
+    <string name="photo_set_fail">Wallpaper not set</string>
+    <string name="photo_no_comments">(No comments yet)</string>
+    
+    <string name="cntcts_notif_mltpl_updates">{INTEGER} contacts have uploaded pictures.</string>
+	<string name="cntcts_notif_sngl_update">1 contact has uploaded pictures.</string>
+	<string name="cntcts_notif_title">Contacts Update</string>
+	
+	<string name="user_see_more">View More</string>
+	
+	<string name="group_see_more">View More</string>
+	<string name="group_total_count">Total</string>
+	
+	<string name="contacts_total_count">Total</string>
+	
+	<string name="upload_description_hint">Enter image description</string>
+	<string name="upload_title_hint">Enter image title</string>
+	<string name="upload_tags_hint">Enter image tags</string>
+	<string name="upload_make_public_text">Make image public?</string>
+	<string name="upload_geo_location_text">Geo-tag this image?</string>
+	<string name="upload_button">Upload</string>
+
+    <string name="notifications">Notify</string>
+    <string name="favorites">Favorites</string>
+    <string name="groups">Groups</string>
+    <string name="group_info">Group Info</string>
+    <string name="search">Search</string>
+    <string name="upload">Upload</string>
+    <string name="contacts">Contacts</string>
+    <string name="settings">Settings</string>
+    <string name="share">Upload</string>
+    <string name="user">User</string>
+    <string name="photo">Photo</string>
+    <string name="photo_stream">Photos</string>
+    
+    <string name="error">Error</string>
+    <string name="auth_complete_button">Return to Flicka</string>
+    <string name="auth_cancel_button">x</string>
+</resources>

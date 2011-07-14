@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@drawable/bg"
+	android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="clip_vertical">
+    
+    <include android:id="@+id/header" layout="@layout/header" />
+ 
+    <include android:id="@+id/loading_activity" layout="@layout/loading_activity" />  
+    
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/activity_layout"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:layout_marginRight="10dp"
+	    android:layout_marginLeft="10dp"
+    	android:visibility="gone">
+    
+	    <RelativeLayout
+	    	android:id="@+id/details_group"
+	    	android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content">
+	    
+	    	<ImageView
+	    		android:id="@+id/details_group_icon"
+	    		android:layout_width="wrap_content"
+	    		android:layout_height="wrap_content"
+	    		android:src="@drawable/loading_user_icon"
+	    		android:layout_marginRight="10dp"
+	    		android:layout_marginBottom="15dp"
+	    		android:background="@drawable/opacity_25"
+	    		android:padding="6px" />
+	    	
+	    	<RelativeLayout
+	    		android:id="@+id/group_details"
+	    		android:layout_height="60px"
+	    		android:layout_width="fill_parent"
+	    		android:background="@drawable/opacity_25"
+	    		android:layout_toRightOf="@id/details_group_icon"
+	    		android:layout_marginBottom="15dp"
+	    		android:paddingTop="8dp"
+	    		android:paddingBottom="10dp"
+	    		android:paddingRight="10dp"
+	    		android:paddingLeft="10dp"
+	    		android:gravity="center_vertical">
+	    	
+	    		<TextView
+	    			android:id="@+id/details_group_name"
+	    			android:textSize="14px"
+	    			android:textStyle="bold"
+	    			android:lines="1"
+	    			android:ellipsize="marquee"
+	    			android:layout_width="fill_parent"
+	    			android:layout_height="wrap_content"
+	    			style="@style/default_text" />
+	    			
+	    		<TextView
+	    			android:id="@+id/details_group_member_count_label"
+	    			android:layout_width="wrap_content"
+	    			android:layout_below="@id/details_group_name"
+	    			android:layout_height="16px"
+	    			android:lines="1"
+	    			android:ellipsize="marquee"
+	    			android:layout_marginRight="4dp"
+	    			android:gravity="bottom"
+	    			android:text="Members:"
+	    			android:textStyle="bold"
+	    			style="@style/default_text_small"/>
+	    		
+	    		<TextView
+	    			android:id="@+id/details_group_member_count"
+	    			android:layout_width="wrap_content"
+	    			android:layout_toRightOf="@id/details_group_member_count_label"
+	    			android:layout_below="@id/details_group_name"
+	    			android:layout_height="16px"
+	    			android:lines="1"
+	    			android:gravity="bottom"
+	    			android:text="0"
+	    			style="@style/default_text_small"/>
+	    	
+	    	</RelativeLayout>
+	    
+	    </RelativeLayout>
+		
+		<ScrollView android:id="@+id/group_description_scroller"
+	    	android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+   			android:layout_below="@id/details_group"
+    		android:layout_marginTop="10dp"
+    		android:layout_marginBottom="190dip"
+    		android:layout_weight="1"
+    		android:visibility="gone">
+	             	
+	    	<TextView
+	    	 	android:id="@+id/group_description"
+	    		android:layout_height="wrap_content"
+	    		android:layout_width="fill_parent"
+	    		style="@style/default_text"
+	    	/>
+	    	
+	    </ScrollView>
+		    
+  		<RelativeLayout
+	    	android:id="@+id/group_photos"
+	    	android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content"
+	    	android:orientation="vertical"
+	    	android:layout_marginTop="-180dip"
+	    	android:layout_weight="1"
+	    	android:layout_below="@id/group_description_scroller"
+	    	android:visibility="gone">
+	    	
+	    	<Button
+	    		android:id="@+id/view_more_photos"
+	    		android:layout_width="wrap_content"
+	    		android:layout_height="wrap_content"
+	    		android:text="@string/group_see_more"
+	    		android:layout_alignParentTop="true"
+	    		android:layout_alignParentRight="true"
+	    		style="@style/default_button_small"
+	    		android:onClick="viewPhotos"
+	    	/>
+	    	
+	    	<TextView
+	    	    android:id="@+id/view_photos_title"
+	    		android:layout_height="wrap_content"
+	    		android:layout_width="wrap_content"
+	    		android:text="Recent photos:"
+	    		android:background="@drawable/opacity_25"
+	    		android:padding="10dp"
+	    		android:layout_alignBaseline="@id/view_more_photos"
+	    		android:textStyle="bold"
+	    		style="@style/default_text"
+	    	/>
+	    		
+  			<GridView xmlns:android="http://schemas.android.com/apk/res/android" 
+			    android:id="@+id/photos_grid_view"
+			    android:layout_width="fill_parent" 
+			    android:layout_height="wrap_content"
+			    android:scrollbars="vertical"
+			    android:columnWidth="65px"
+			    android:numColumns="auto_fit"
+			    android:verticalSpacing="5dp"
+			    android:horizontalSpacing="5dp"
+			    android:stretchMode="columnWidth"
+			    android:listSelector="@drawable/list_view_selector"
+			    android:layout_below="@id/view_more_photos"
+			/>
+	    
+	    </RelativeLayout>
+    
+    </RelativeLayout>
+    
+</LinearLayout>

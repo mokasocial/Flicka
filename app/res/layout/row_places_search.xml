@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/opacity_25_green">
+
+	    <TextView
+	        android:id="@+id/placename"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:textStyle="bold"
+	        android:textSize="14px"
+	        android:textColor="#A1C05E"
+	        android:singleLine="true"
+	        android:layout_centerVertical="true"
+	    />
+	    
+	    <!-- Playing with some ideas. 
+	    <Button 
+	    	android:id="@+id/seeOnMapButton"
+        	android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/placename"
+	        android:text="See on map"
+	   	/>
+	   	
+	    <Button 
+	    	android:id="@+id/seePhotosbutton"
+        	android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/placename"
+	        android:layout_toRightOf="@id/seeOnMapButton"
+	        android:text="See photos"
+	   	/>
+	   	-->
+    
+</RelativeLayout>
