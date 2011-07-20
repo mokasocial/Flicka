@@ -1,10 +1,5 @@
 package com.mokasocial.flicka;
 
-import com.aetrion.flickr.favorites.FavoritesInterface;
-import com.aetrion.flickr.people.User;
-import com.aetrion.flickr.photos.Photo;
-import com.aetrion.flickr.photos.PhotoList;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -12,33 +7,40 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView.OnItemClickListener;
+
+import com.aetrion.flickr.favorites.FavoritesInterface;
+import com.aetrion.flickr.people.User;
+import com.aetrion.flickr.photos.Photo;
+import com.aetrion.flickr.photos.PhotoList;
 
 /**
  * The Favorites display activity class.
  * 
- * @author Michael Hradek mhradek@gmail.com, mhradek@mokasocial.com, mhradek@flicka.mobi
+ * @author Michael Hradek mhradek@gmail.com, mhradek@mokasocial.com,
+ *         mhradek@flicka.mobi
  * @date 2010.02.06
  */
-public class ActivityFavorites extends Activity implements OnScrollListener{
+public class ActivityFavorites extends Activity implements OnScrollListener {
 
 	private PhotoList mFavorites;
 	private Context mContext;
 	private Activity mActivity;
 	private ImageAdapter mImageAdapter;
 	private User mUser;
-	//private static Animation mFadeIn, mFadeOut;
+	// private static Animation mFadeIn, mFadeOut;
 	private DrawableManager mDraw;
 	private Resources mResources;
 	private PrefsMgmt mPrefsMgmt;
@@ -66,7 +68,7 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 		mResources = getResources();
 		mPrefsMgmt = new PrefsMgmt(mContext);
 		mPrefsMgmt.restorePreferences();
-		
+
 		// Set up the various strings and view for this sub activity.
 		Utilities.setupActivityView(mActivity, R.string.favorites, R.layout.view_favorites);
 
@@ -74,7 +76,7 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 		Loading.start(mActivity, Loading.ACTIVITY_LOADING_TEXT, R.string.progress_getting_favorites, Loading.ACTIVITY_LOADING_ICON);
 
 		// Start the lengthy work
-		Thread favoritesThread = new Thread(){
+		Thread favoritesThread = new Thread() {
 			@Override
 			public void run() {
 				Authorize authorize = Authorize.initializeAuthObj(mContext);
@@ -104,21 +106,13 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 				renderViewFavorites();
 				break;
 			case PROGRESS_GET_FAVES_CONTINUE:
-				if(mImageAdapter != null) {
+				if (mImageAdapter != null) {
 					mImageAdapter.notifyDataSetChanged();
-				}
-
-				if(mFavorites != null) {
-					Utilities.debugLog(mContext, "Continued getting favorites. Total: " + mFavorites.size());
 				}
 				break;
 			case PROGRESS_GET_FAVES_COMPLETE:
-				if(mImageAdapter != null) {
+				if (mImageAdapter != null) {
 					mImageAdapter.notifyDataSetChanged();
-				}
-
-				if(mFavorites != null) {
-					Utilities.debugLog(mContext, "Finished getting favorites. Total: " + mFavorites.size());
 				}
 				break;
 			}
@@ -130,9 +124,9 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 	 */
 	private void renderViewFavorites() {
 		try {
-			if(mUser != null && mUser.getUsername() != null) {
+			if (mUser != null && mUser.getUsername() != null) {
 				String username;
-				if(mUser.getUsername().length() > USERNAME_MAX_LENGTH) {
+				if (mUser.getUsername().length() > USERNAME_MAX_LENGTH) {
 					username = mUser.getUsername().substring(0, USERNAME_MAX_LENGTH) + Flicka.ELLIPSIS;
 				} else {
 					username = mUser.getUsername();
@@ -143,15 +137,13 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 				Utilities.setupActivityBreadcrumbEndText(mActivity, getString(R.string.generic_breadcrumb_name));
 			}
 
-			if(mFavorites == null) {
+			if (mFavorites == null) {
 				throw new Exception();
 			}
 
-			if(mFavorites.size() < 1) {
+			if (mFavorites.size() < 1) {
 				throw new NoFavoritesException();
 			}
-
-			Utilities.debugLog(mContext, "Got favorites. Count: " + mFavorites.size());
 
 			final GridView gridView = (GridView) findViewById(R.id.favorites_grid_view);
 			mImageAdapter = new ImageAdapter(mContext);
@@ -164,7 +156,8 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 					Intent intent = new Intent(ActivityFavorites.this, ActivityPhoto.class);
 					intent.putExtra(Flicka.INTENT_EXTRA_VIEWPHOTO_PHOTOID, photo.getId());
 
-					// Send the details so we can do a slideshow if the user wants
+					// Send the details so we can do a slideshow if the user
+					// wants
 					Bundle slideShow = new Bundle();
 					slideShow.putInt(SlideShow.CURRENT_ITEM, position + 1);
 					slideShow.putInt(SlideShow.CURRENT_STREAM, SlideShow.STREAM_FAVORITES);
@@ -180,7 +173,7 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 		} catch (NoFavoritesException e) {
 			Loading.noDisplay(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_NO_DISPLAY);
 		} catch (Exception e) {
-			Utilities.errorOccurred(mContext, "Unable to initialize favorites.", e);
+			e.printStackTrace();
 			Loading.failed(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_FAILED_LOAD);
 		}
 	}
@@ -195,28 +188,29 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 	 */
 	@SuppressWarnings("unchecked")
 	private void getMoreFavorites(final PhotoList favorites) {
-		// If the user has less than a full page we can safely assume no more exist.
-		if(favorites == null || favorites.size() < mFavesPerPage) {
+		// If the user has less than a full page we can safely assume no more
+		// exist.
+		if (favorites == null || favorites.size() < mFavesPerPage) {
 			return;
 		}
-		
-		// We are going to wait for the current thread to finish if it is running
-		if(mGetMoreThread == null || mGetMoreThread.isAlive() == false) {
-			
+
+		// We are going to wait for the current thread to finish if it is
+		// running
+		if (mGetMoreThread == null || mGetMoreThread.isAlive() == false) {
+
 			// Next page
 			mFavesPageNum++;
-		
+
 			mGetMoreThread = new Thread() {
 				@Override
 				public void run() {
 					PhotoList result = null;
-					Utilities.debugLog(mContext, "Getting page " + mFavesPageNum);
 					Authorize authObj = Authorize.initializeAuthObj(mContext);
 					result = getFavorites(authObj, mFavesPerPage, mFavesPageNum);
-					
-					if(result != null && result.size() > 0) {
-						Utilities.debugLog(mContext, "Images recieved: " + result.size());
-						// Add everything to the end of the passed favorites Collection
+
+					if (result != null && result.size() > 0) {
+						// Add everything to the end of the passed favorites
+						// Collection
 						favorites.addAll(result);
 						favoritesHandler.sendEmptyMessage(PROGRESS_GET_FAVES_CONTINUE);
 					}
@@ -224,12 +218,13 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 			};
 			mGetMoreThread.start();
 		} else {
-			Utilities.debugLog(mContext, "Thread is busy, skipping getting more automatically");
+			Log.d("Favorites", "Thread is busy, skipping getting more automatically");
 		}
 	}
 
 	/**
-	 * Get favorites with the passed parameters specific which page and how many per page.
+	 * Get favorites with the passed parameters specific which page and how many
+	 * per page.
 	 * 
 	 * @param perPage
 	 * @param pageNum
@@ -241,16 +236,16 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 			String userId = (mUser == null) ? null : mUser.getId();
 			return iFace.getList(userId, perPage, pageNum, null);
 		} catch (Exception e) {
-			Utilities.errorOccurred(mContext, "Unable to load favorites.", e);
+			e.printStackTrace();
 		}
 
 		return null;
 	}
 
 	/**
-	 * A custom adapter designed to lazy load images while the user scrolls and they become visible in
-	 * the view.
-	 *
+	 * A custom adapter designed to lazy load images while the user scrolls and
+	 * they become visible in the view.
+	 * 
 	 */
 	private class ImageAdapter extends BaseAdapter {
 		private final Context mContext;
@@ -278,22 +273,21 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 
 		// Create a new ImageView for each item referenced by the Adapter
 		public View getView(int position, View convertView, ViewGroup parent) {
-			Utilities.debugLog(mContext, "Gridview position requested: " + position);
 			ImageView imageView;
 			// If it's not recycled, initialize some attributes
-			//if (convertView == null) {
+			if (convertView == null) {
 				imageView = new ImageView(mContext);
 				imageView.setLayoutParams(new GridView.LayoutParams(75, 75));
 				imageView.setBackgroundResource(R.drawable.opacity_25);
 				imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 				imageView.setPadding(5, 5, 5, 5);
-			//} else {
-			//	imageView = (ImageView) convertView;
-			//}
+			} else {
+				imageView = (ImageView) convertView;
+			}
 
 			Photo photo = (Photo) getItem(position);
-			
-			if(!mScrolling) {
+
+			if (!mScrolling) {
 				mDraw.fetchDrawableOnThread(photo.getSmallSquareUrl(), imageView);
 			} else {
 				imageView.setImageDrawable(mResources.getDrawable(R.drawable.loading_user_icon));
@@ -316,15 +310,16 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 	}
 
 	/**
-	 * Determine and execute which action to take when a menu item has been selected from
-	 * the menu that is shown when the menu button is pressed.
+	 * Determine and execute which action to take when a menu item has been
+	 * selected from the menu that is shown when the menu button is pressed.
 	 * 
 	 * @return boolean
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		// This needs some logic help. The user may click on home before authenticate is finished.
+		// This needs some logic help. The user may click on home before
+		// authenticate is finished.
 		case R.id.get_more_favorites:
 			getMoreFavorites(mFavorites);
 			return true;
@@ -336,29 +331,28 @@ public class ActivityFavorites extends Activity implements OnScrollListener{
 	/**
 	 * Implementation of the OnScrollListener. This is called during a scroll.
 	 */
-	public void onScroll(AbsListView view, int firstVisibleItem,
-			int visibleItemCount, int totalItemCount) {
-		
-		if(mFavorites == null || mFavorites.size() < mFavesPerPage) {
-			Utilities.debugLog(mContext, "Skipping load more images automatically. Not enough items");
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+		if (mFavorites == null || mFavorites.size() < mFavesPerPage) {
+			Log.d("Favorites", "Skipping load more images automatically. Not enough items");
 			return;
 		}
-		
-        boolean loadMore = (firstVisibleItem + visibleItemCount) >= totalItemCount;
 
-        if(loadMore == true && mPrefsMgmt.isLoadMoreStreamAutoEnabled() && mScrolling == false) {
-        	Utilities.debugLog(mContext, "Going to try and load more images automatically");
-        	getMoreFavorites(mFavorites);
-        	mImageAdapter.notifyDataSetChanged();
-        }
+		boolean loadMore = (firstVisibleItem + visibleItemCount) >= totalItemCount;
+
+		if (loadMore == true && mPrefsMgmt.isLoadMoreStreamAutoEnabled() && mScrolling == false) {
+			Log.d("Favorites", "Going to try and load more images automatically");
+			getMoreFavorites(mFavorites);
+			mImageAdapter.notifyDataSetChanged();
+		}
 	}
 
 	/**
-	 * Implementation of the OnScrollListener. This is called when the scroll state is changed.
-	 * We really only care about the idle state.
+	 * Implementation of the OnScrollListener. This is called when the scroll
+	 * state is changed. We really only care about the idle state.
 	 */
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		switch(scrollState) {
+		switch (scrollState) {
 		case OnScrollListener.SCROLL_STATE_IDLE:
 			mScrolling = false;
 			mImageAdapter.notifyDataSetChanged();

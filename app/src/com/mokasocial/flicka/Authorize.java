@@ -10,23 +10,17 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import android.content.Context;
+import android.util.Log;
+
 import com.aetrion.flickr.Flickr;
 import com.aetrion.flickr.FlickrException;
 import com.aetrion.flickr.REST;
 import com.aetrion.flickr.RequestContext;
-import com.aetrion.flickr.auth.*;
+import com.aetrion.flickr.auth.Auth;
+import com.aetrion.flickr.auth.AuthInterface;
+import com.aetrion.flickr.auth.Permission;
 import com.aetrion.flickr.util.IOUtilities;
-
-import android.content.Context;
-
-/**
- * The Flicka Authorize object wraps all the goodness of authorizing a user and setting up
- * the FlickrJ connection object(s). It may eventually need to be busted out into multiple
- * classes as the classname implies a specific duty.
- * import com.aetrion.flickr.auth.*;
- * @author Michael Hradek <mhradek@gmail.com>, <mhradek@mokasocial.com>, <mhradek@flicka.mobi>
- * @date 2009.11.04
- */
 
 public class Authorize {
 	/** OBJECT DEFINITIONS */
@@ -45,9 +39,9 @@ public class Authorize {
 	/** CONTEXT VARIABLE */
 	private final Context mContext;
 
-	///////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////
 	// CONSTRUCTOR
-	///////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * The Authorize object constructor.
@@ -60,21 +54,21 @@ public class Authorize {
 		mContext = context;
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC FUNCTIONS
-	///////////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////////
 
 	public static Authorize initializeAuthObj(Context context) {
 		Authorize authorize = null;
 		try {
 			authorize = new Authorize(context);
 		} catch (Exception e) {
-			Utilities.debugLog(authorize, "Unable to initialize the authorization object.");
+			e.printStackTrace();
 			return null;
 		}
 
 		boolean result = authorize.initializeToken();
-		if(result == false) {
+		if (result == false) {
 			authorize.authTokenValid = false;
 			return authorize;
 		}
@@ -91,11 +85,7 @@ public class Authorize {
 	 */
 	public void initilizeFlickr() throws IOException, ParserConfigurationException {
 		loadProperties();
-		flickr = new Flickr(
-				properties.getProperty(Authorize.PROPERTIES_API_KEY),
-				properties.getProperty(Authorize.PROPERTIES_SECRET_KEY),
-				new REST()
-		);
+		flickr = new Flickr(properties.getProperty(Authorize.PROPERTIES_API_KEY), properties.getProperty(Authorize.PROPERTIES_SECRET_KEY), new REST());
 
 		requestContext = RequestContext.getRequestContext();
 		requestContext.setAuth(null);
@@ -104,31 +94,33 @@ public class Authorize {
 	}
 
 	/**
-	 * Initialize the stored token into the auth object. If one can't be found or an error
-	 * occurs, return false.
+	 * Initialize the stored token into the auth object. If one can't be found
+	 * or an error occurs, return false.
 	 * 
 	 * @return boolean
 	 */
 	public boolean initializeToken() {
 		try {
 			String token = loadToken();
-			if(token == null) {
-				Utilities.debugLog(this, "No token found.");
+			if (token == null) {
+				Log.d("Auth", "No token found.");
 				return false;
 			}
 			AuthInterface authInterface = flickr.getAuthInterface();
 			authObj = authInterface.checkToken(token);
 			requestContext.setAuth(authObj);
 		} catch (Exception e) {
-			Utilities.debugLog(this, "Unable to initialize auth token.");
+			e.printStackTrace();
+
 			return false;
 		}
 		return true;
 	}
 
 	/**
-	 * Create the authentication URL to authorize Flicka against the Flickr API using
-	 * the client created frob and requesting the permission level of Flicka (DELETE).
+	 * Create the authentication URL to authorize Flicka against the Flickr API
+	 * using the client created frob and requesting the permission level of
+	 * Flicka (DELETE).
 	 * 
 	 * @return String url
 	 * @throws IOException
@@ -139,16 +131,16 @@ public class Authorize {
 		AuthInterface authInterface = flickr.getAuthInterface();
 		frob = authInterface.getFrob();
 		URL url = authInterface.buildAuthenticationUrl(Permission.DELETE, frob);
-		Utilities.debugLog(this, url.toString());
+		Log.d("Auth", url.toString());
 
 		// The Flickrj library only returns the non-mobile URLs. Fix here.
 		return url.toString().replaceFirst(Flicka.FLICKR_MAIN_URL, Flicka.FLICKR_MOBILE_URL);
 	}
 
 	/**
-	 * With a newly created frob which has been properly authorized by Flickr website interaction,
-	 * grab the auth object. This will only work if the user authorized Flicka and otherwise
-	 * will throw an exception.
+	 * With a newly created frob which has been properly authorized by Flickr
+	 * website interaction, grab the auth object. This will only work if the
+	 * user authorized Flicka and otherwise will throw an exception.
 	 * 
 	 * @throws IOException
 	 * @throws SAXException
@@ -161,8 +153,8 @@ public class Authorize {
 	}
 
 	/**
-	 * Load the properties for Flicka which are things like API keys, version stuff, and
-	 * other details configurable only by the devs.
+	 * Load the properties for Flicka which are things like API keys, version
+	 * stuff, and other details configurable only by the devs.
 	 * 
 	 * @see this.properties
 	 * @throws IOException
@@ -172,8 +164,8 @@ public class Authorize {
 		try {
 			in = Flicka.class.getResourceAsStream(Flicka.FLICKA_PROPERTIES_FILE);
 
-			if(in == null){
-				throw new FileNotFoundException ("File " + Flicka.FLICKA_PROPERTIES_FILE + " does not exist");
+			if (in == null) {
+				throw new FileNotFoundException("File " + Flicka.FLICKA_PROPERTIES_FILE + " does not exist");
 			}
 
 			properties = new Properties();
@@ -190,20 +182,17 @@ public class Authorize {
 	 */
 	public String loadToken() {
 		Database dbObj = new Database(mContext);
-		dbObj.open();
 		String result = dbObj.getLastAuthToken();
-		dbObj.close();
 		return result;
 	}
 
 	/**
-	 * This function takes the token and user (NSID) and saves them to the Flicka database.
+	 * This function takes the token and user (NSID) and saves them to the
+	 * Flicka database.
 	 */
 	public void saveToken() {
 		Database dbObj = new Database(mContext);
-		dbObj.open();
 		dbObj.addAuth(authObj.getToken(), authObj.getUser().getId());
-		dbObj.close();
 	}
 
 	public boolean isAuthTokenValid() {

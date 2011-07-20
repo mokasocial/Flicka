@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.aetrion.flickr.contacts.Contact;
-import com.aetrion.flickr.contacts.ContactsInterface;
-
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,20 +15,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView.OnItemClickListener;
 
-public class ActivityContacts extends ListActivity implements OnScrollListener{
+import com.aetrion.flickr.contacts.Contact;
+import com.aetrion.flickr.contacts.ContactsInterface;
+
+public class ActivityContacts extends ListActivity implements OnScrollListener {
 
 	// Contacts loaded from local DB or remotely are saved here.
 	private Collection<Contact> mContacts;
-	// BaseAdapter can't be extended by Collection<?> so we're using this for now. We'll make our own later.
+	// BaseAdapter can't be extended by Collection<?> so we're using this for
+	// now. We'll make our own later.
 	private ArrayList<Contact> mContactsArray;
 	private ContactAdapter mContactAdapter;
 	private Authorize mAuthorize;
@@ -39,6 +40,7 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 	private ListActivity mActivity;
 	private DrawableManager mDraw;
 	private Resources mResources;
+	private Database mDatabase;
 
 	/**
 	 * These variables hold unique integers for the dismissal of progress dialog
@@ -65,6 +67,7 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 		mActivity = this;
 		mDraw = new DrawableManager(Flicka.CONTACT_ICON_DIR);
 		mResources = getResources();
+		mDatabase = new Database(mContext);
 
 		// Start progress box
 		Loading.start(mActivity, Loading.ACTIVITY_LOADING_TEXT, R.string.progress_getting_contacts, Loading.ACTIVITY_LOADING_ICON);
@@ -77,7 +80,7 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 		getListView().setTextFilterEnabled(true);
 
 		// Start the retrieval of contacts thread.
-		Thread retrieveThread =  new Thread(null, rRetrieveContacts, Flicka.FLICKA_THREAD_NAME);
+		Thread retrieveThread = new Thread(null, rRetrieveContacts, Flicka.FLICKA_THREAD_NAME);
 		retrieveThread.start();
 	}
 
@@ -91,9 +94,9 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 	};
 
 	/**
-	 * This can be invoked from within a thread upon it's completion to close a progress
-	 * dialog and perform other tasks. The defined progress dialogs are protected static final
-	 * int variables defined in ActivityContacts.
+	 * This can be invoked from within a thread upon it's completion to close a
+	 * progress dialog and perform other tasks. The defined progress dialogs are
+	 * protected static final int variables defined in ActivityContacts.
 	 */
 	public Handler progressDialogHandler = new Handler() {
 		@Override
@@ -101,7 +104,7 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 			switch (msg.what) {
 			case PROGRESS_RETRIEVE_CONTACTS:
 				Loading.update(mActivity, Loading.ACTIVITY_LOADING_TEXT, R.string.progress_loading_contacts);
-				Thread loadThread =  new Thread(null, rLoadContacts, Flicka.FLICKA_THREAD_NAME);
+				Thread loadThread = new Thread(null, rLoadContacts, Flicka.FLICKA_THREAD_NAME);
 				loadThread.start();
 				break;
 			case PROGRESS_LOAD_CONTACTS:
@@ -118,9 +121,9 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 	 */
 	private final Runnable returnRes = new Runnable() {
 		public void run() {
-			if(mContactsArray != null && mContactsArray.size() > 0) {
+			if (mContactsArray != null && mContactsArray.size() > 0) {
 				mContactAdapter.notifyDataSetChanged();
-				for(int i=0; i < mContactsArray.size(); i++) {
+				for (int i = 0; i < mContactsArray.size(); i++) {
 					mContactAdapter.add(mContactsArray.get(i));
 				}
 			}
@@ -139,7 +142,7 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 		}
 	};
 
-	private final Runnable rLoadContacts = new Runnable(){
+	private final Runnable rLoadContacts = new Runnable() {
 		public void run() {
 			processContacts();
 		}
@@ -150,41 +153,35 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 			Loading.dismiss(mActivity, Loading.ACTIVITY_LOADING_PARENT, Loading.ACTIVITY_LOADING_TARGET);
 			Utilities.setupActivityBreadcrumbEndText(mActivity, mContacts.size() + " " + getString(R.string.contacts_total_count));
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to initialize contacts.", e);
+			e.printStackTrace();
 			Loading.failed(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_FAILED_LOAD);
 		}
 	}
 
 	/**
-	 * Convert the contacts into an ArrayList. Also, perform this in a UI thread.
+	 * Convert the contacts into an ArrayList. Also, perform this in a UI
+	 * thread.
 	 */
 	private void processContacts() {
-		try {
-			mContactsArray = new ArrayList<Contact>();
-			if(mContacts != null) {
-				Database dbObj = new Database(mContext);
-				dbObj.open();
-				Iterator<Contact> contactsIterator = mContacts.iterator();
-				while(contactsIterator.hasNext()) {
-					Contact contact = contactsIterator.next();
-					if(mContactsInDB == false) {
-						dbObj.addContact(contact);
-					}
-					mContactsArray.add(contact);
-				}
-				dbObj.setUpdateTime(Flicka.CACHED_SECTION_CONTACTS);
-				dbObj.close();
+		mContactsArray = new ArrayList<Contact>();
+		if (mContacts != null) {
+			Iterator<Contact> contactsIterator = mContacts.iterator();
+			while (contactsIterator.hasNext()) {
+				Contact contact = contactsIterator.next();
+				mContactsArray.add(contact);
 			}
-			Utilities.debugLog(this, "Built array. Num objects: " + mContactsArray.size());
-		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to get contacts.", e);
+			if (mContactsInDB == false) {
+				mDatabase.addContacts(mContactsArray);
+			}
+			mDatabase.setUpdateTime(Flicka.CACHED_SECTION_CONTACTS);
 		}
 
 		runOnUiThread(returnRes);
 	}
 
 	/**
-	 * This is an adapter class that adds certain view functionalities to an array list.
+	 * This is an adapter class that adds certain view functionalities to an
+	 * array list.
 	 */
 	private class ContactAdapter extends ArrayAdapter<Contact> implements Filterable {
 		private final Object mLock = new Object();
@@ -195,9 +192,11 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 		/**
 		 * The constructor. Note the reference to super.
 		 * 
-		 * @param Context context
+		 * @param Context
+		 *            context
 		 * @param int textViewResourceId
-		 * @param ArrayList<Contact> items
+		 * @param ArrayList
+		 *            <Contact> items
 		 */
 		public ContactAdapter(Context context, int textViewResourceId, ArrayList<Contact> items) {
 			super(context, textViewResourceId, items);
@@ -228,7 +227,7 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			if (view == null) {
-				LayoutInflater viewInflator = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				LayoutInflater viewInflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				view = viewInflator.inflate(R.layout.row_contacts_list, null);
 			}
 
@@ -238,7 +237,7 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 				final TextView userlinetwoView = (TextView) view.findViewById(R.id.userlinetwo);
 
 				// Prefer real name. If none is set, use the user name.
-				if(contact.getRealName().length() != 0) {
+				if (contact.getRealName().length() != 0) {
 					userlinetwoView.setText(contact.getRealName());
 				} else {
 					userlinetwoView.setText("");
@@ -247,13 +246,17 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 				usernameTextView.setText(contact.getUsername());
 
 				final ImageView userIconImageView = (ImageView) view.findViewById(R.id.usericon);
-				if(!mScrolling) {
+				if (!mScrolling) {
 					mDraw.fetchDrawableOnThread(contact.getBuddyIconUrl(), userIconImageView);
 				} else {
 					userIconImageView.setImageDrawable(mResources.getDrawable(R.drawable.loading_user_icon));
 				}
 			} else {
-				Utilities.debugLog(this, "Contact should not be null! Position: " + position);
+				try {
+					throw new Exception("Contact should not be null!");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 
 			return view;
@@ -273,8 +276,9 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 		/**
 		 * Custom Filter implementation for the contacts adapter.
 		 * 
-		 * http://www.netmite.com/android/mydroid/frameworks/base/core/java/android/widget/ArrayAdapter.java
-		 *
+		 * http://www.netmite.com/android/mydroid/frameworks/base/core/java/
+		 * android/widget/ArrayAdapter.java
+		 * 
 		 */
 		private class ContactsFilter extends Filter {
 			@Override
@@ -282,14 +286,16 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 				// Initiate our results object
 				FilterResults results = new FilterResults();
 
-				// If the adapter array is empty, check the actual contacts array and use it
+				// If the adapter array is empty, check the actual contacts
+				// array and use it
 				if (mItems == null) {
 					synchronized (mLock) {
 						mItems = new ArrayList<Contact>(mContactsArray);
 					}
 				}
 
-				// No prefix is sent to filter by so we're going to send back the original array
+				// No prefix is sent to filter by so we're going to send back
+				// the original array
 				if (prefix == null || prefix.length() == 0) {
 					synchronized (mLock) {
 						results.values = mContactsArray;
@@ -325,7 +331,7 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 			@Override
 			@SuppressWarnings("unchecked")
 			protected void publishResults(CharSequence prefix, FilterResults results) {
-				//noinspection unchecked
+				// noinspection unchecked
 				mItems = (ArrayList<Contact>) results.values;
 				// Let the adapter know about the updated list
 				if (results.count > 0) {
@@ -338,25 +344,23 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 	}
 
 	/**
-	 * Load a collection of Contact objects for the authorized user. We suppress the casting warning
-	 * in the line assigning the contacts variable because this warning is irrelevant.
+	 * Load a collection of Contact objects for the authorized user. We suppress
+	 * the casting warning in the line assigning the contacts variable because
+	 * this warning is irrelevant.
 	 * 
 	 * @return Collection<Contact> or null
 	 */
 	@SuppressWarnings("unchecked")
 	public Collection<Contact> loadContacts(boolean refreshContacts) {
-		// If contacts exist in the Contacts table, use them otherwise load a new set
-		Database dbObj = new Database(mContext);
-		dbObj.open();
-		long lastUpdate = dbObj.getUpdateTime(Flicka.CACHED_SECTION_CONTACTS);
-		if(lastUpdate > (System.currentTimeMillis() - Flicka.CACHED_SECTION_LIMIT)) {
-			mContacts = dbObj.getContacts();
+		// If contacts exist in the Contacts table, use them otherwise load a
+		// new set
+		long lastUpdate = mDatabase.getUpdateTime(Flicka.CACHED_SECTION_CONTACTS);
+		if (lastUpdate > (System.currentTimeMillis() - Flicka.CACHED_SECTION_LIMIT)) {
+			mContacts = mDatabase.getContacts();
 		}
-		dbObj.close();
 
 		// Something came back from the database, use it.
-		if(mContacts != null) {
-			Utilities.debugLog(this, "Number of contacts loaded: " + mContacts.size());
+		if (mContacts != null) {
 			mContactsInDB = true;
 			return mContacts;
 		}
@@ -364,9 +368,8 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 		try {
 			ContactsInterface iface = mAuthorize.flickr.getContactsInterface();
 			mContacts = iface.getList(0, 0);
-			Utilities.debugLog(this, "Number of contacts fetched: " + mContacts.size());
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to load contacts.", e);
+			e.printStackTrace();
 		}
 
 		return mContacts;
@@ -375,16 +378,15 @@ public class ActivityContacts extends ListActivity implements OnScrollListener{
 	/**
 	 * Implementation of the OnScrollListener. This is called during a scroll.
 	 */
-	public void onScroll(AbsListView view, int firstVisibleItem,
-			int visibleItemCount, int totalItemCount) {
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 	}
 
 	/**
-	 * Implementation of the OnScrollListener. This is called when the scroll state is changed.
-	 * We really only care about the idle state.
+	 * Implementation of the OnScrollListener. This is called when the scroll
+	 * state is changed. We really only care about the idle state.
 	 */
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		switch(scrollState) {
+		switch (scrollState) {
 		case OnScrollListener.SCROLL_STATE_IDLE:
 			getListView().setVerticalScrollBarEnabled(false);
 			mScrolling = false;

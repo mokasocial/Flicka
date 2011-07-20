@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -153,7 +154,7 @@ public class ActivityGroups extends ListActivity implements OnScrollListener {
 			Loading.dismiss(mActivity, Loading.ACTIVITY_LOADING_PARENT, Loading.ACTIVITY_LOADING_TARGET);
 			Utilities.setupActivityBreadcrumbEndText(mActivity, mGroups.size() + " " + getString(R.string.group_total_count));
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to initialize groups.", e);
+			e.printStackTrace();
 			Loading.failed(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_FAILED_LOAD);
 		}
 	}
@@ -171,9 +172,8 @@ public class ActivityGroups extends ListActivity implements OnScrollListener {
 					mGroupsArray.add(group);
 				}
 			}
-			Utilities.debugLog(this, "Built array. Num objects: " + mGroupsArray.size());
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to get groups.", e);
+			e.printStackTrace();
 		}
 
 		runOnUiThread(returnRes);
@@ -246,9 +246,8 @@ public class ActivityGroups extends ListActivity implements OnScrollListener {
 					userIconImageView.setImageDrawable(getResources().getDrawable(R.drawable.loading_user_icon));
 				}
 			} else {
-				Utilities.debugLog(this, "Group should not be null! Position: " + position);
+				Log.d("Groups", "Group was null");
 			}
-
 			return view;
 		}
 
@@ -350,7 +349,7 @@ public class ActivityGroups extends ListActivity implements OnScrollListener {
 				mGroups = iface.getGroups(0, 0);
 			}
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to load groups.", e);
+			e.printStackTrace();
 		}
 
 		if (mGroups == null) {

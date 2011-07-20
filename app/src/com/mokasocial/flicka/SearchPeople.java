@@ -1,12 +1,12 @@
 package com.mokasocial.flicka;
 
-import com.aetrion.flickr.people.PeopleInterface;
-import com.aetrion.flickr.people.User;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
+import com.aetrion.flickr.people.PeopleInterface;
+import com.aetrion.flickr.people.User;
 
 public class SearchPeople extends Activity {
 
@@ -24,14 +24,13 @@ public class SearchPeople extends Activity {
 		mActivity = this;
 		mAuthorize = Authorize.initializeAuthObj(mContext);
 
-
 		Intent intent = mActivity.getIntent();
 		Bundle extras = intent.getExtras();
 		mSearchTerms = extras.getString(Flicka.INTENT_EXTRA_SEARCH_TERMS);
 
 		mUser = search(mSearchTerms);
 
-		if(mUser == null) {
+		if (mUser == null) {
 			Utilities.alertUser(mContext, "None found", null);
 			finish();
 			return;
@@ -43,18 +42,18 @@ public class SearchPeople extends Activity {
 	}
 
 	/**
-	 * Get the user that matches the search string. Return null if none is found.
+	 * Get the user that matches the search string. Return null if none is
+	 * found.
 	 * 
 	 * @param searchTerms
 	 * @return
 	 */
-	public User search(String searchTerms)  {
-		Utilities.debugLog(this, "Searching people.");
+	public User search(String searchTerms) {
 		PeopleInterface iFace = mAuthorize.flickr.getPeopleInterface();
 		try {
 			return iFace.findByUsername(searchTerms);
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to search for: " + searchTerms, e);
+			e.printStackTrace();
 		}
 
 		return null;

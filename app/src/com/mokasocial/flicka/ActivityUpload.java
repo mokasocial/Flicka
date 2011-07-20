@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore.Images;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -81,7 +82,7 @@ public class ActivityUpload extends Activity {
 		// If coming from somewhere other than Flicka (eg Camera) then use that
 		// method
 		if (mRequestedUri == null) {
-			Utilities.debugLog(this, "External intent requesting upload.");
+			Log.d("Upload", "External intent requesting upload.");
 			mRequestedUri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
 			String scheme = mRequestedUri.getScheme();
 			if (scheme.equals("content")) {
@@ -93,7 +94,7 @@ public class ActivityUpload extends Activity {
 			}
 		}
 
-		Utilities.debugLog(this, "Using path: " + mRequestedUri.getPath());
+		Log.d("Upload", "Using path: " + mRequestedUri.getPath());
 		mMetaData = new UploadMetaData();
 
 		// Set up the various strings and view for this sub activity.
@@ -114,11 +115,11 @@ public class ActivityUpload extends Activity {
 			try {
 				inputStream = new BufferedInputStream(new FileInputStream(new File(mRequestedUri.getPath())), ImageMgmt.IO_BUFFER_SIZE);
 			} catch (FileNotFoundException e1) {
-				Utilities.errorOccurred(this, "Couldn't show preview", e1);
+				Log.d("Upload", "Couldn't show preview", e1);
 				return null;
 			}
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Couldn't show preview", e);
+			Log.d("Upload", "Couldn't show preview", e);
 			return null;
 		}
 
@@ -139,7 +140,7 @@ public class ActivityUpload extends Activity {
 				inputStream = new BufferedInputStream(new FileInputStream(new File(mRequestedUri.getPath())), ImageMgmt.IO_BUFFER_SIZE);
 			}
 		} catch (Exception e) {
-			Utilities.errorOccurred(mContext, "Non contentResolver inputStream reinitization failure", e);
+			Log.d("Upload", "Non contentResolver inputStream reinitization failure", e);
 		}
 
 		return inputStream;
@@ -169,7 +170,7 @@ public class ActivityUpload extends Activity {
 				mPhotoId = uploadPhoto();
 				uploadHandler.sendEmptyMessage(PROGRESS_PHOTO_UPLOAD_SUCCESS);
 			} catch (Exception e) {
-				Utilities.errorOccurred(mContext, "Upload failed", e);
+				Log.d("Upload", "Upload failed", e);
 				uploadHandler.sendEmptyMessage(PROGRESS_PHOTO_UPLOAD_FAILURE);
 			}
 		}
@@ -263,7 +264,7 @@ public class ActivityUpload extends Activity {
 		// If the location is still null, let's skip this step. We can let the
 		// user know.
 		if (location == null) {
-			Utilities.debugLog(mContext, "Unable to determine geo location. Skipping location tag");
+			Log.d("Upload", "Unable to determine geo location. Skipping location tag");
 			return;
 		}
 
@@ -276,11 +277,12 @@ public class ActivityUpload extends Activity {
 		try {
 			geoFace.setLocation(photoId, geoData);
 		} catch (FlickrException e) {
+			e.printStackTrace();
 			if (e.getErrorCode() == "7") {
-				Utilities.errorOccurred(this, "Unable to set geo location of photo. Privacy settings update required", e);
+				Log.d("Upload", "Unable to set geo location of photo. Privacy settings update required", e);
 			}
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Geo location setting failed", e);
+			e.printStackTrace();
 		}
 	}
 
@@ -290,7 +292,7 @@ public class ActivityUpload extends Activity {
 		Authorize authorize = Authorize.initializeAuthObj(mContext);
 		uploader = authorize.flickr.getUploader();
 		photoId = uploader.upload(mInputStream, mMetaData);
-		Utilities.debugLog(mContext, "Upload success: " + photoId);
+		Log.d("Upload", "Upload success: " + photoId);
 		mInputStream.close();
 
 		return photoId;

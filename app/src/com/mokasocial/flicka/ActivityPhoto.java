@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
@@ -191,23 +192,23 @@ public class ActivityPhoto extends Activity {
 							final int largestSizeLabel = largestSize.getLabel();
 							switch (largestSizeLabel) {
 							case Size.SMALL:
-								Utilities.debugLog(mContext, "Using small image");
+								Log.d("Photo", "Using small image");
 								mPhotoUrl = mPhoto.getSmallUrl();
 								break;
 							case Size.MEDIUM:
-								Utilities.debugLog(mContext, "Using medium image");
+								Log.d("Photo", "Using medium image");
 								mPhotoUrl = mPhoto.getMediumUrl();
 								break;
 							case Size.LARGE:
-								Utilities.debugLog(mContext, "Using large image");
+								Log.d("Photo", "Using large image");
 								mPhotoUrl = mPhoto.getLargeUrl();
 								break;
 							case Size.ORIGINAL:
-								Utilities.debugLog(mContext, "Using original image");
+								Log.d("Photo", "Using original image");
 								mPhotoUrl = mPhoto.getOriginalUrl();
 								break;
 							default:
-								Utilities.debugLog(mContext, "Using default image");
+								Log.d("Photo", "Using default image");
 								mPhotoUrl = mPhoto.getMediumUrl();
 								break;
 							}
@@ -216,8 +217,8 @@ public class ActivityPhoto extends Activity {
 						mPhotoUrl = mPhoto.getMediumUrl();
 					}
 				} catch (Exception e) {
+					e.printStackTrace();
 					mPhoto = null;
-					Utilities.errorOccurred(this, "Failed to initialize photo", e);
 				}
 				photoHandler.sendEmptyMessage(PROGRESS_GET_PHOTO_COMPLETE);
 			}
@@ -272,7 +273,7 @@ public class ActivityPhoto extends Activity {
 			populatePhotoView();
 			Loading.dismiss(mActivity, Loading.ACTIVITY_LOADING_PARENT, Loading.ACTIVITY_LOADING_TARGET);
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to initialize photo.", e);
+			e.printStackTrace();
 			Loading.failed(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_FAILED_LOAD);
 		}
 	}
@@ -356,7 +357,7 @@ public class ActivityPhoto extends Activity {
 			try {
 				is.close();
 			} catch (IOException e) {
-				Utilities.errorOccurred(this, "Could not create bitmap", e);
+				e.printStackTrace();
 				return null;
 			}
 		}
@@ -381,7 +382,7 @@ public class ActivityPhoto extends Activity {
 			// oh and clear the text
 			commentText.setText("");
 		} catch (Exception e) {
-			Utilities.errorOccurred(mContext, "Save comment failed", e);
+			e.printStackTrace();
 			Utilities.alertUser(mContext, "Sorry, couldn't save your comment.", null);
 		}
 
@@ -415,7 +416,7 @@ public class ActivityPhoto extends Activity {
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		String photoId = extras.getString(Flicka.INTENT_EXTRA_VIEWPHOTO_PHOTOID);
-		Utilities.debugLog(this, "Populated photo object with id: " + photoId);
+		Log.d("Photo", "Populated photo object with id: " + photoId);
 		mSlideShowBundle = extras.getBundle(Flicka.INTENT_EXTRA_SLIDESHOW);
 
 		Photo photo = mSlideShow.getPhoto(photoId);
@@ -480,7 +481,7 @@ public class ActivityPhoto extends Activity {
 				try {
 					mPhotoFile.createNewFile();
 				} catch (IOException e) {
-					Utilities.errorOccurred(this, "Failed to create file", e);
+					e.printStackTrace();
 				}
 			}
 		}
@@ -496,7 +497,7 @@ public class ActivityPhoto extends Activity {
 
 				success = true;
 			} catch (Exception e) {
-				Utilities.errorOccurred(this, "Problem fetching and then saving wallpaper", e);
+				e.printStackTrace();
 			} finally {
 				if (stream != null) {
 					try {
@@ -522,7 +523,7 @@ public class ActivityPhoto extends Activity {
 				final Intent intent = new Intent("com.android.camera.action.CROP");
 				intent.setClassName("com.android.camera", "com.android.camera.CropImage");
 				final Uri fileUri = Uri.fromFile(mPhotoFile);
-				Utilities.debugLog(this, "Attempting to crop image: " + fileUri.toString());
+				Log.d("Photo", "Attempting to crop image: " + fileUri.toString());
 				intent.setDataAndType(fileUri, "image/*");
 				intent.putExtra("outputX", width);
 				intent.putExtra("outputY", height);
@@ -616,7 +617,7 @@ public class ActivityPhoto extends Activity {
 	public void updateFaveStatus() {
 		try {
 			FavoritesInterface iFace = mAuthorize.flickr.getFavoritesInterface();
-			Utilities.debugLog(this, "This image is a favorite: " + mPhoto.isFavorite() + ". Photo id: " + mPhoto.getId());
+			Log.d("Photo", "This image is a favorite: " + mPhoto.isFavorite() + ". Photo id: " + mPhoto.getId());
 			if (mPhoto.isFavorite() == true) {
 				iFace.remove(mPhoto.getId());
 				mPhoto.setFavorite(false);
@@ -627,7 +628,7 @@ public class ActivityPhoto extends Activity {
 				toggleFaveIcon(true);
 			}
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Couldn't update photo fave status.", e);
+			e.printStackTrace();
 			Utilities.alertUser(this, "Favorite status update failed.", e);
 		}
 	}
@@ -673,12 +674,12 @@ public class ActivityPhoto extends Activity {
 	}
 
 	public void runSlideShow() {
-		Utilities.debugLog(mContext, "RunSlideShow executed!");
+		Log.d("Photo", "RunSlideShow executed!");
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
+			e.printStackTrace();
 			mSlideShowBundle.putBoolean(SlideShow.AUTO_SLIDE_SHOW_MODE, false);
-			Utilities.errorOccurred(mContext, "Sleep failed!", e);
 			return;
 		}
 
@@ -700,7 +701,7 @@ public class ActivityPhoto extends Activity {
 					throw new Exception("Flickr uses a 1 based numbering system.");
 				}
 
-				Utilities.debugLog(this, "Currently: " + position + " Requested: " + direction + " Result: " + newPosition);
+				Log.d("Photo", "Currently: " + position + " Requested: " + direction + " Result: " + newPosition);
 				Object[] photoList = fInt.getList(identifier, 1, newPosition, null).toArray();
 				Photo currentPhoto = (Photo) photoList[0];
 
@@ -726,7 +727,7 @@ public class ActivityPhoto extends Activity {
 							mSlideShow.setPhoto(prefetchPhoto.getId(), prefetchPhoto);
 							mSlideShow.setBitmap(url, BitmapFactory.decodeStream(is));
 						} catch (Exception e) {
-							Utilities.errorOccurred(this, "Prefetch failed!", e);
+							e.printStackTrace();
 						}
 					}
 				};
@@ -758,7 +759,7 @@ public class ActivityPhoto extends Activity {
 				startActivity(intent);
 			} catch (Exception e) {
 				mSlideShowBundle.putBoolean(SlideShow.AUTO_SLIDE_SHOW_MODE, false);
-				Utilities.errorOccurred(this, "Unable to move to next favorites image.", e);
+				e.printStackTrace();
 			}
 			break;
 		case SlideShow.STREAM_GROUP_PHOTOS:
@@ -769,7 +770,7 @@ public class ActivityPhoto extends Activity {
 					throw new Exception("Flickr uses a 1 based numbering system.");
 				}
 
-				Utilities.debugLog(this, "Currently: " + position + " Requested: " + direction + " Result: " + newPosition);
+				Log.d("Photo", "Currently: " + position + " Requested: " + direction + " Result: " + newPosition);
 				Object[] photoList = iFace.getPhotos(identifier, null, 1, newPosition).toArray();
 				Photo photo = (Photo) photoList[0];
 
@@ -795,7 +796,7 @@ public class ActivityPhoto extends Activity {
 							mSlideShow.setPhoto(prefetchPhoto.getId(), prefetchPhoto);
 							mSlideShow.setBitmap(url, BitmapFactory.decodeStream(is));
 						} catch (Exception e) {
-							Utilities.errorOccurred(this, "Prefetch failed!", e);
+							e.printStackTrace();
 						}
 					}
 				};
@@ -827,7 +828,7 @@ public class ActivityPhoto extends Activity {
 				startActivity(intent);
 			} catch (Exception e) {
 				mSlideShowBundle.putBoolean(SlideShow.AUTO_SLIDE_SHOW_MODE, false);
-				Utilities.errorOccurred(this, "Unable to move to next group image.", e);
+				e.printStackTrace();
 			}
 			break;
 		case SlideShow.STREAM_USER_PHOTOS:
@@ -838,7 +839,7 @@ public class ActivityPhoto extends Activity {
 					throw new Exception("Flickr uses a 1 based numbering system.");
 				}
 
-				Utilities.debugLog(this, "Currently: " + position + " Requested: " + direction + " Result: " + newPosition);
+				Log.d("Photo", "Currently: " + position + " Requested: " + direction + " Result: " + newPosition);
 				Object[] photoList = iFace.getPhotos(identifier, 1, newPosition, Extras.MIN_EXTRAS).toArray();
 				Photo photo = (Photo) photoList[0];
 
@@ -864,7 +865,7 @@ public class ActivityPhoto extends Activity {
 							mSlideShow.setPhoto(prefetchPhoto.getId(), prefetchPhoto);
 							mSlideShow.setBitmap(url, BitmapFactory.decodeStream(is));
 						} catch (Exception e) {
-							Utilities.errorOccurred(this, "Prefetch failed!", e);
+							e.printStackTrace();
 						}
 					}
 				};
@@ -896,7 +897,7 @@ public class ActivityPhoto extends Activity {
 				startActivity(intent);
 			} catch (Exception e) {
 				mSlideShowBundle.putBoolean(SlideShow.AUTO_SLIDE_SHOW_MODE, false);
-				Utilities.errorOccurred(this, "Unable to move to next group image.", e);
+				e.printStackTrace();
 			}
 			break;
 		default:
@@ -924,9 +925,9 @@ public class ActivityPhoto extends Activity {
 					}
 				}
 			}
-			Utilities.debugLog(this, "Built array. Num objects: " + mCommentsArray.size());
+			Log.d("Photo", "Built array. Num objects: " + mCommentsArray.size());
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to get comments.", e);
+			e.printStackTrace();
 		}
 
 		if (mCommentAdapter != null) {
@@ -950,13 +951,13 @@ public class ActivityPhoto extends Activity {
 				break;
 			case PROGRESS_GET_COMMENTS_CONTINUE:
 				if (mComments != null) {
-					Utilities.debugLog(this, "Continued getting comments. Total: " + mComments.size());
+					Log.d("Photo", "Continued getting comments. Total: " + mComments.size());
 				}
 				break;
 			case PROGRESS_GET_COMMENTS_COMPLETE:
 				mCommentsLoaded = true;
 				if (mComments != null) {
-					Utilities.debugLog(this, "Finished getting comments. Total: " + mComments.size());
+					Log.d("Photo", "Finished getting comments. Total: " + mComments.size());
 				}
 				if (mComments != null && mComments.size() > 0) {
 					final ListView commentList = (ListView) findViewById(R.id.image_comments);
@@ -1055,7 +1056,7 @@ public class ActivityPhoto extends Activity {
 				usernameTextView.setText(comment.getAuthorName());
 				commentTextView.setText(comment.getText().replaceAll("\\<.*?\\>", ""));
 			} else {
-				Utilities.debugLog(this, "Comment should not be null! Position: " + position);
+				Log.d("Photo", "Comment should not be null! Position: " + position);
 			}
 
 			return view;
@@ -1075,7 +1076,7 @@ public class ActivityPhoto extends Activity {
 			CommentsInterface cFace = mAuthorize.flickr.getCommentsInterface();
 			mComments = cFace.getList(mPhoto.getId());
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to load comments.", e);
+			e.printStackTrace();
 		}
 		return mComments;
 	}

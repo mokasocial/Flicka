@@ -4,14 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.aetrion.flickr.groups.Group;
-import com.aetrion.flickr.groups.GroupsInterface;
-import com.aetrion.flickr.groups.pools.PoolsInterface;
-import com.aetrion.flickr.photos.Photo;
-import com.aetrion.flickr.photos.PhotoList;
-
-import com.csam.jentities.Entities;
-import com.csam.jentities.HTML4Entities;
+import org.xml.sax.SAXException;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,13 +17,22 @@ import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
+
+import com.aetrion.flickr.FlickrException;
+import com.aetrion.flickr.groups.Group;
+import com.aetrion.flickr.groups.GroupsInterface;
+import com.aetrion.flickr.groups.pools.PoolsInterface;
+import com.aetrion.flickr.photos.Photo;
+import com.aetrion.flickr.photos.PhotoList;
+import com.csam.jentities.Entities;
+import com.csam.jentities.HTML4Entities;
 
 public class ActivityGroupInfo extends Activity {
 
@@ -64,17 +66,17 @@ public class ActivityGroupInfo extends Activity {
 		this.findViewById(R.id.arrow_right_2).setVisibility(View.GONE);
 
 		// Start the lengthy work
-		Thread userThread = new Thread(){
+		Thread userThread = new Thread() {
 			@Override
 			public void run() {
 				mAuthorize = Authorize.initializeAuthObj(mContext);
 				groupHandler.sendEmptyMessage(PROGRESS_AUTH_SET_COMPLETE);
 				try {
 					mGroup = ActivityGroupInfo.initializeGroup(mActivity, mAuthorize, Flicka.INTENT_EXTRA_ACTIVITY_NSID);
-					mPhotos = getRecentPhotos();
 				} catch (Exception e) {
-					Utilities.errorOccurred(this, "Failed to initialize group", e);
+					e.printStackTrace();
 				}
+				mPhotos = getRecentPhotos();
 				groupHandler.sendEmptyMessage(PROGRESS_GET_GROUP_COMPLETE);
 			}
 		};
@@ -101,51 +103,42 @@ public class ActivityGroupInfo extends Activity {
 			populateGroupDetails(mGroup);
 			Loading.dismiss(mActivity, Loading.ACTIVITY_LOADING_PARENT, Loading.ACTIVITY_LOADING_TARGET);
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to initialize group.", e);
+			e.printStackTrace();
 			Loading.failed(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_FAILED_LOAD);
 		}
 	}
 
-	public static Group initializeGroup(Activity activity, Authorize authorize, String extrasName) {
-		try {
-			// Grab the passed NSID.
-			Intent intent = activity.getIntent();
-			Bundle extras = intent.getExtras();
-			String nsid = extras.getString(extrasName);
-			Utilities.debugLog(activity, "Populated group object with nsid: " + nsid);
+	public static Group initializeGroup(Activity activity, Authorize authorize, String extrasName) throws IOException, SAXException, FlickrException {
+		// Grab the passed NSID.
+		Intent intent = activity.getIntent();
+		Bundle extras = intent.getExtras();
+		String nsid = extras.getString(extrasName);
 
-			// Try DB first.
-			Database dbObj = new Database(activity);
-			dbObj.open();
-			long lastUpdate = dbObj.getGroupUpdateTime(nsid);
+		// Try DB first.
+		Database db = new Database(activity);
+		long lastUpdate = db.getGroupUpdateTime(nsid);
 
-			// Return the cached group if its within the accepted time limit.
-			if(lastUpdate > (System.currentTimeMillis() - Flicka.CACHED_GROUP_LIMIT)) {
-				Utilities.debugLog(activity, "Group [" + nsid + "] was found in cache.");
-				Group cachedGroup = dbObj.getGroup(nsid);
-				dbObj.close();
-				return cachedGroup;
-			}
-
-			// Grab the user from Flickr, cache, and return.
-			Utilities.debugLog(activity, "Grabbing fresh group details.");
-			GroupsInterface iface = authorize.flickr.getGroupsInterface();
-			Group freshGroup = iface.getInfo(nsid);
-			dbObj.addGroup(freshGroup);
-			dbObj.close();
-			return freshGroup;
-		} catch (Exception e) {
-			Utilities.errorOccurred(activity, "Problem initializing group.", e);
-			return null;
+		// Return the cached group if its within the accepted time limit.
+		if (lastUpdate > (System.currentTimeMillis() - Flicka.CACHED_GROUP_LIMIT)) {
+			Group cachedGroup = db.getGroup(nsid);
+			return cachedGroup;
 		}
+
+		// Grab the user from Flickr, cache, and return.
+		GroupsInterface iface = authorize.flickr.getGroupsInterface();
+		Group freshGroup = iface.getInfo(nsid);
+		db.addGroup(freshGroup);
+		return freshGroup;
+
 	}
 
 	/**
-	 * This is a basic crap function to demonstrate what date is available. Images will need to
-	 * get loaded, etc. It should probably remain but I imagine it will be much cleaner.
+	 * This is a basic crap function to demonstrate what date is available.
+	 * Images will need to get loaded, etc. It should probably remain but I
+	 * imagine it will be much cleaner.
 	 * 
 	 * @param user
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private void populateGroupDetails(Group group) throws IOException {
 		final TextView groupNameTextView = (TextView) findViewById(R.id.details_group_name);
@@ -155,12 +148,12 @@ public class ActivityGroupInfo extends Activity {
 
 		// Populate the group name
 		groupNameTextView.setText(group.getName());
-		Utilities.debugLog(this, group.getBuddyIconUrl());
 
 		// Populate the group description
 		String groupDescription = group.getDescription();
-		if(groupDescription != null && groupDescription != "") {
-			// This needs work. It should replace some formatting like <br> and <p> with \n type stuff.
+		if (groupDescription != null && groupDescription != "") {
+			// This needs work. It should replace some formatting like <br> and
+			// <p> with \n type stuff.
 			Entities entities = new HTML4Entities();
 			groupDescriptionTextView.setText(entities.parseText(groupDescription.replaceAll("\\<.*?\\>", "")));
 			final ScrollView descriptionScroller = (ScrollView) findViewById(R.id.group_description_scroller);
@@ -171,7 +164,7 @@ public class ActivityGroupInfo extends Activity {
 		InputStream is = ImageMgmt.loadImage(group.getBuddyIconUrl(), new File(Flicka.GROUP_ICON_DIR));
 
 		// If it fails (missing SDCard)
-		if(is == null) {
+		if (is == null) {
 			is = ImageMgmt.fetchImage(group.getBuddyIconUrl());
 			ImageMgmt.saveImage(is, group.getBuddyIconUrl(), new File(Flicka.GROUP_ICON_DIR));
 			is = ImageMgmt.loadImage(group.getBuddyIconUrl(), new File(Flicka.GROUP_ICON_DIR));
@@ -179,23 +172,21 @@ public class ActivityGroupInfo extends Activity {
 
 		// Load into Bitmap, let's add some rounded corners
 		Bitmap userIcon;
-		if(is != null) {
-			userIcon = ImageMgmt.getRndedCornerBtmp(
-					BitmapFactory.decodeStream(is), ImageMgmt.USER_ICON_CORNER_RADIUS);
+		if (is != null) {
+			userIcon = ImageMgmt.getRndedCornerBtmp(BitmapFactory.decodeStream(is), ImageMgmt.USER_ICON_CORNER_RADIUS);
 			try {
 				is.close();
-			} catch (IOException e) {}
+			} catch (IOException e) {
+			}
 		} else {
-			userIcon = ImageMgmt.getRndedCornerBtmp(
-					BitmapFactory.decodeResource(this.getResources(),
-							R.drawable.loading_user_icon), ImageMgmt.USER_ICON_CORNER_RADIUS);
+			userIcon = ImageMgmt.getRndedCornerBtmp(BitmapFactory.decodeResource(this.getResources(), R.drawable.loading_user_icon), ImageMgmt.USER_ICON_CORNER_RADIUS);
 		}
 
 		// Populate the group icon
 		groupIconView.setImageBitmap(userIcon);
 
 		// Populate the pool if there is one
-		if(mPhotos != null && mPhotos.size() > 0) {
+		if (mPhotos != null && mPhotos.size() > 0) {
 			populateGroupRecentPhotos();
 		}
 
@@ -277,11 +268,11 @@ public class ActivityGroupInfo extends Activity {
 	}
 
 	private PhotoList getRecentPhotos() {
-		try{
+		try {
 			PoolsInterface iFace = mAuthorize.flickr.getPoolsInterface();
 			return iFace.getPhotos(mGroup.getId(), null, 10, 1);
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to get recent photos", e);
+			e.printStackTrace();
 			return null;
 		}
 	}

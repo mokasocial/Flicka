@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -39,7 +40,8 @@ import com.aetrion.flickr.places.Place;
  * 
  * Works for group, people, place, and self photostreams!!!
  * 
- * @author Michael Hradek mhradek@gmail.com, mhradek@mokasocial.com, mhradek@flicka.mobi
+ * @author Michael Hradek mhradek@gmail.com, mhradek@mokasocial.com,
+ *         mhradek@flicka.mobi
  * @date 2010.02.06
  */
 public class ActivityPhotoStream extends Activity implements OnScrollListener {
@@ -61,8 +63,8 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 	private Thread mGetMoreThread;
 
 	// private final static int MENU_ANIMATION_TIME = 150;
-	//private final static int MENU_ITEM_SLIDESHOW = 0;
-	//private final static int MENU_ITEM_YOUR_PHOTOS = 1;
+	// private final static int MENU_ITEM_SLIDESHOW = 0;
+	// private final static int MENU_ITEM_YOUR_PHOTOS = 1;
 
 	private final static int PROGRESS_AUTH_SET_COMPLETE = 0;
 	private final static int PROGRESS_GET_PHOTOS_INITIAL = 1;
@@ -92,7 +94,7 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 		mPrefsMgmt = new PrefsMgmt(mContext);
 		mPrefsMgmt.restorePreferences();
 		mAuthorize = Authorize.initializeAuthObj(mContext);
-		
+
 		// Set up the various strings and view for this sub activity.
 		Utilities.setupActivityView(mActivity, R.string.photo_stream, R.layout.view_photo_stream);
 
@@ -100,7 +102,7 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 		Loading.start(mActivity, Loading.ACTIVITY_LOADING_TEXT, R.string.progress_getting_photos, Loading.ACTIVITY_LOADING_ICON);
 
 		// Start the lengthy work
-		Thread favoritesThread = new Thread(){
+		Thread favoritesThread = new Thread() {
 			@Override
 			public void run() {
 				Authorize authObj = Authorize.initializeAuthObj(mContext);
@@ -130,21 +132,21 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 				renderViewPhotos();
 				break;
 			case PROGRESS_GET_PHOTOS_CONTINUE:
-				if(mImageAdapter != null) {
+				if (mImageAdapter != null) {
 					mImageAdapter.notifyDataSetChanged();
 				}
 
-				if(mPhotos != null) {
-					Utilities.debugLog(this, "Continued getting photos. Total: " + mPhotos.size());
+				if (mPhotos != null) {
+					Log.d("Photosteam", "Continued getting photos. Total: " + mPhotos.size());
 				}
 				break;
 			case PROGRESS_GET_PHOTOS_COMPLETE:
-				if(mImageAdapter != null) {
+				if (mImageAdapter != null) {
 					mImageAdapter.notifyDataSetChanged();
 				}
 
-				if(mPhotos != null) {
-					Utilities.debugLog(this, "Finished getting photos. Total: " + mPhotos.size());
+				if (mPhotos != null) {
+					Log.d("Photosteam", "Finished getting photos. Total: " + mPhotos.size());
 				}
 				break;
 			}
@@ -156,9 +158,9 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 		Intent intent = mActivity.getIntent();
 		Bundle extras = intent.getExtras();
 		mStreamType = extras.getInt(Flicka.INTENT_EXTRA_PHOTO_STREAM_TYPE);
-		Utilities.debugLog(mActivity, "Determined to go with stream type: " + mStreamType);
+		Log.d("Photosteam", "Determined to go with stream type: " + mStreamType);
 
-		if(mStreamType == PHOTO_STREAM_TYPE_USER) {
+		if (mStreamType == PHOTO_STREAM_TYPE_USER) {
 			try {
 				mUser = ActivityUser.initializeUser(mActivity, mAuthorize, Flicka.INTENT_EXTRA_ACTIVITY_NSID);
 			} catch (Exception e) {
@@ -192,7 +194,7 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 		try {
 			String username;
 			if (mUser != null) {
-				if(mUser.getUsername().length() > USERNAME_MAX_LENGTH) {
+				if (mUser.getUsername().length() > USERNAME_MAX_LENGTH) {
 					username = mUser.getUsername().substring(0, USERNAME_MAX_LENGTH) + Flicka.ELLIPSIS;
 				} else {
 					username = mUser.getUsername();
@@ -200,7 +202,7 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 				Utilities.setupActivityBreadcrumbEndText(mActivity, username);
 			} else if (mGroup != null) {
 				// @todo different const here
-				if(mGroup.getName().length() > USERNAME_MAX_LENGTH) {
+				if (mGroup.getName().length() > USERNAME_MAX_LENGTH) {
 					username = mGroup.getName().substring(0, USERNAME_MAX_LENGTH) + Flicka.ELLIPSIS;
 				} else {
 					username = mGroup.getName();
@@ -210,7 +212,7 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 				username = "Place search";
 				Utilities.setupActivityBreadcrumbEndText(mActivity, username);
 			} else if (mSet != null) {
-				if(mSet.getTitle().length() > USERNAME_MAX_LENGTH) {
+				if (mSet.getTitle().length() > USERNAME_MAX_LENGTH) {
 					username = mSet.getTitle().substring(0, USERNAME_MAX_LENGTH) + Flicka.ELLIPSIS;
 				} else {
 					username = mSet.getTitle();
@@ -222,15 +224,15 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 				Utilities.setupActivityBreadcrumbEndText(mActivity, username);
 			}
 
-			if(mPhotos == null) {
+			if (mPhotos == null) {
 				throw new Exception();
 			}
 
-			if(mPhotos.size() < 1) {
+			if (mPhotos.size() < 1) {
 				throw new NoPhotosException();
 			}
 
-			Utilities.debugLog(mContext, "Got photos. Count: " + mPhotos.size());
+			Log.d("Photosteam", "Got photos. Count: " + mPhotos.size());
 
 			GridView gridView = (GridView) findViewById(R.id.photo_stream_grid_view);
 			mImageAdapter = new ImageAdapter(mContext);
@@ -245,27 +247,28 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 
 					String identifier = null;
 					int stream = SlideShow.STREAM_USER_PHOTOS;
-					if(mStreamType == PHOTO_STREAM_TYPE_USER) {
-						if(mUser != null) {
+					if (mStreamType == PHOTO_STREAM_TYPE_USER) {
+						if (mUser != null) {
 							identifier = mUser.getId();
 						} else {
 							User thisUser = mAuthorize.authObj.getUser();
-							if (thisUser != null){
+							if (thisUser != null) {
 								identifier = thisUser.getId();
 							}
-						}						
-					} else if(mStreamType == PHOTO_STREAM_TYPE_GROUP) {
+						}
+					} else if (mStreamType == PHOTO_STREAM_TYPE_GROUP) {
 						identifier = mGroup.getId();
 						stream = SlideShow.STREAM_GROUP_PHOTOS;
-					} else if(mStreamType == PHOTO_STREAM_TYPE_PLACE) {
+					} else if (mStreamType == PHOTO_STREAM_TYPE_PLACE) {
 						identifier = mPlace.getPlaceId();
 						stream = SlideShow.STREAM_PLACE_PHOTOS;
-					} else if(mStreamType == PHOTO_STREAM_TYPE_SET) {
+					} else if (mStreamType == PHOTO_STREAM_TYPE_SET) {
 						identifier = mSet.getId();
 						stream = SlideShow.STREAM_SET_PHOTOS;
 					}
 
-					// Send the details so we can do a slideshow if the user wants
+					// Send the details so we can do a slideshow if the user
+					// wants
 					Bundle slideShow = new Bundle();
 					slideShow.putInt(SlideShow.CURRENT_ITEM, position + 1);
 					slideShow.putInt(SlideShow.CURRENT_STREAM, stream);
@@ -280,13 +283,14 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 		} catch (NoPhotosException e) {
 			Loading.noDisplay(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_NO_DISPLAY);
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to initialize photo stream.", e);
+			e.printStackTrace();
 			Loading.failed(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_FAILED_LOAD);
 		}
 	}
 
 	/**
 	 * No cachey on Places!
+	 * 
 	 * @param activity
 	 * @param authorize
 	 * @param extrasName
@@ -298,11 +302,11 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 			Intent intent = activity.getIntent();
 			Bundle extras = intent.getExtras();
 			String placeId = extras.getString(extrasName);
-			try{
+			try {
 				Place freshPlace = new Place();
 				freshPlace.setPlaceId(placeId);
 				return freshPlace;
-			} catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 				return null;
 			}
@@ -315,6 +319,7 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 
 	/**
 	 * No cachey on Sets!
+	 * 
 	 * @param activity
 	 * @param authorize
 	 * @param extrasName
@@ -326,19 +331,19 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 			Intent intent = activity.getIntent();
 			Bundle extras = intent.getExtras();
 			String setId = extras.getString(extrasName);
-			try{
+			try {
 				// no cachey, retrieve again.
 				PhotosetsInterface pFace = authorize.flickr.getPhotosetsInterface();
 				Photoset freshSet = pFace.getInfo(setId);
 
 				return freshSet;
-			} catch (Exception e){
-				Utilities.errorOccurred(activity, "Unable to initialize photoset stream.", e);
+			} catch (Exception e) {
+				e.printStackTrace();
 				return null;
 			}
 
 		} catch (Exception e) {
-			Utilities.errorOccurred(activity, "Problem initializing place.", e);
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -353,29 +358,32 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 	 */
 	@SuppressWarnings("unchecked")
 	private void getMorePhotos(final PhotoList photos) {
-		// If the user has less than a full page we can safely assume no more exist.
-		if(photos == null || photos.size() < mPhotosPerPage) {
+		// If the user has less than a full page we can safely assume no more
+		// exist.
+		if (photos == null || photos.size() < mPhotosPerPage) {
 			return;
 		}
-		
-		// We are going to wait for the current thread to finish if it is running
-		if(mGetMoreThread == null || mGetMoreThread.isAlive() == false) {
-			
+
+		// We are going to wait for the current thread to finish if it is
+		// running
+		if (mGetMoreThread == null || mGetMoreThread.isAlive() == false) {
+
 			// Next page
 			mPhotosPageNum++;
-			
+
 			mGetMoreThread = new Thread() {
 				@Override
 				public void run() {
-			
+
 					PhotoList result = null;
-					Utilities.debugLog(mContext, "Getting page " + mPhotosPageNum);
+					Log.d("Photosteam", "Getting page " + mPhotosPageNum);
 					Authorize authObj = Authorize.initializeAuthObj(mContext);
-					result = getPhotos(authObj, mPhotosPerPage, mPhotosPageNum);		
-					
-					if(result != null && result.size() > 0) {
-						Utilities.debugLog(mContext, "Images received: " + result.size());
-						// Add everything to the end of the passed photos Collection
+					result = getPhotos(authObj, mPhotosPerPage, mPhotosPageNum);
+
+					if (result != null && result.size() > 0) {
+						Log.d("Photosteam", "Images received: " + result.size());
+						// Add everything to the end of the passed photos
+						// Collection
 						photos.addAll(result);
 						photosHandler.sendEmptyMessage(PROGRESS_GET_PHOTOS_CONTINUE);
 					}
@@ -383,32 +391,34 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 			};
 			mGetMoreThread.start();
 		} else {
-			Utilities.debugLog(mContext, "Thread is busy, skipping getting more automatically");
+			Log.d("Photosteam", "Thread is busy, skipping getting more automatically");
 		}
 	}
 
 	/**
-	 * Get favorites with the passed parameters specific which page and how many per page.
+	 * Get favorites with the passed parameters specific which page and how many
+	 * per page.
 	 * 
 	 * @param perPage
 	 * @param pageNum
 	 * @return
 	 */
 	private PhotoList getPhotos(Authorize autorize, int perPage, int pageNum) {
-		if(mUser != null) {
+		if (mUser != null) {
 			try {
 				PeopleInterface iFace = autorize.flickr.getPeopleInterface();
-				// @todo Something is wonky when using stuff from the DB. Only "fresh" users work. Hmm.
+				// @todo Something is wonky when using stuff from the DB. Only
+				// "fresh" users work. Hmm.
 				return iFace.getPhotos(mUser.getId(), mPhotosPerPage, mPhotosPageNum, Extras.MIN_EXTRAS);
 			} catch (Exception e) {
-				Utilities.errorOccurred(this, "Unable to load user photos.", e);
+				e.printStackTrace();
 			}
 		} else if (mGroup != null) {
 			try {
 				PoolsInterface iFace = autorize.flickr.getPoolsInterface();
 				return iFace.getPhotos(mGroup.getId(), null, mPhotosPerPage, mPhotosPageNum);
 			} catch (Exception e) {
-				Utilities.errorOccurred(this, "Unable to load group photos.", e);
+				e.printStackTrace();
 			}
 		} else if (mPlace != null) {
 			try {
@@ -417,22 +427,22 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 				params.setPlaceId(mPlace.getPlaceId());
 				return iFace.search(params, mPhotosPerPage, mPhotosPageNum);
 			} catch (Exception e) {
-				Utilities.errorOccurred(mContext, "Unable to load place photos.", e);
+				e.printStackTrace();
 			}
 		} else if (mSet != null) {
 			try {
 				PhotosetsInterface iFace = autorize.flickr.getPhotosetsInterface();
-				Utilities.debugLog(mContext, "Set id: " + mSet.getId() + " Page: " + mPhotosPageNum);
+				Log.d("Photosteam", "Set id: " + mSet.getId() + " Page: " + mPhotosPageNum);
 				return iFace.getPhotos(mSet.getId(), mPhotosPerPage, mPhotosPageNum);
 			} catch (Exception e) {
-				Utilities.errorOccurred(mContext, "Unable to load set photos.", e);
+				Log.d("Photosteam", "Unable to load set photos.", e);
 			}
 		} else {
 			try {
 				PeopleInterface iFace = autorize.flickr.getPeopleInterface();
 				return iFace.getPhotos("me", mPhotosPerPage, mPhotosPageNum, Extras.MIN_EXTRAS);
 			} catch (Exception e) {
-				Utilities.errorOccurred(mContext, "Unable to load user (you) photos.", e);
+				Log.d("Photosteam", "Unable to load user (you) photos.", e);
 			}
 		}
 
@@ -440,9 +450,9 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 	}
 
 	/**
-	 * A custom adapter designed to lazy load images while the user scrolls and they become visible in
-	 * the view.
-	 *
+	 * A custom adapter designed to lazy load images while the user scrolls and
+	 * they become visible in the view.
+	 * 
 	 */
 	private class ImageAdapter extends BaseAdapter {
 		private final Context mContext;
@@ -473,22 +483,22 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 
 			ImageView imageView;
 			// If it's not recycled, initialize some attributes
-			//			if (convertView == null) {
+			// if (convertView == null) {
 			imageView = new ImageView(mContext);
 			imageView.setLayoutParams(new GridView.LayoutParams(75, 75));
 			imageView.setBackgroundResource(R.drawable.opacity_25);
 			imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 			imageView.setPadding(5, 5, 5, 5);
-			//			} else {
-			//				Utilities.debugLog(this, "john said convertview NOT NULL");
-			//				// if it IS recycled, need to reset everything about it
-			//				// or the following will use the wrong resource
-			//				imageView = (ImageView) convertView;
-			//			}
+			// } else {
+			// Utilities.debugLog(this, "john said convertview NOT NULL");
+			// // if it IS recycled, need to reset everything about it
+			// // or the following will use the wrong resource
+			// imageView = (ImageView) convertView;
+			// }
 
 			Photo photo = (Photo) getItem(position);
 
-			if(!mScrolling) {
+			if (!mScrolling) {
 				mDraw.fetchDrawableOnThread(photo.getSmallSquareUrl(), imageView);
 			} else {
 				imageView.setImageDrawable(mResources.getDrawable(R.drawable.txt_loading));
@@ -512,15 +522,16 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 	}
 
 	/**
-	 * Determine and execute which action to take when a menu item has been selected from
-	 * the menu that is shown when the menu button is pressed.
+	 * Determine and execute which action to take when a menu item has been
+	 * selected from the menu that is shown when the menu button is pressed.
 	 * 
 	 * @return boolean
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		// This needs some logic help. The user may click on home before authenticate is finished.
+		// This needs some logic help. The user may click on home before
+		// authenticate is finished.
 		case R.id.get_more_favorites:
 			getMorePhotos(mPhotos);
 			return true;
@@ -532,29 +543,28 @@ public class ActivityPhotoStream extends Activity implements OnScrollListener {
 	/**
 	 * Implementation of the OnScrollListener. This is called during a scroll.
 	 */
-	public void onScroll(AbsListView view, int firstVisibleItem,
-			int visibleItemCount, int totalItemCount) {
-		
-		if(mPhotos == null || mPhotos.size() < mPhotosPerPage) {
-			Utilities.debugLog(mContext, "Skipping load more images automatically. Not enough items");
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+		if (mPhotos == null || mPhotos.size() < mPhotosPerPage) {
+			Log.d("Photosteam", "Skipping load more images automatically. Not enough items");
 			return;
 		}
-		
-        boolean loadMore = (firstVisibleItem + visibleItemCount) >= totalItemCount;
 
-        if(loadMore == true && mPrefsMgmt.isLoadMoreStreamAutoEnabled() && mScrolling == false) {
-        	Utilities.debugLog(mContext, "Going to try and load more images automatically");
-        	getMorePhotos(mPhotos);
-        	mImageAdapter.notifyDataSetChanged();
-        }
+		boolean loadMore = (firstVisibleItem + visibleItemCount) >= totalItemCount;
+
+		if (loadMore == true && mPrefsMgmt.isLoadMoreStreamAutoEnabled() && mScrolling == false) {
+			Log.d("Photosteam", "Going to try and load more images automatically");
+			getMorePhotos(mPhotos);
+			mImageAdapter.notifyDataSetChanged();
+		}
 	}
 
 	/**
-	 * Implementation of the OnScrollListener. This is called when the scroll state is changed.
-	 * We really only care about the idle state.
+	 * Implementation of the OnScrollListener. This is called when the scroll
+	 * state is changed. We really only care about the idle state.
 	 */
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		switch(scrollState) {
+		switch (scrollState) {
 		case OnScrollListener.SCROLL_STATE_IDLE:
 			mScrolling = false;
 			mImageAdapter.notifyDataSetChanged();

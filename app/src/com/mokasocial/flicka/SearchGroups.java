@@ -3,10 +3,6 @@ package com.mokasocial.flicka;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.aetrion.flickr.groups.Group;
-import com.aetrion.flickr.groups.GroupList;
-import com.aetrion.flickr.groups.GroupsInterface;
-
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
@@ -21,15 +17,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
+
+import com.aetrion.flickr.groups.Group;
+import com.aetrion.flickr.groups.GroupList;
+import com.aetrion.flickr.groups.GroupsInterface;
 
 public class SearchGroups extends ListActivity {
 
 	// Contacts loaded from local DB or remotely are saved here.
 	private GroupList mGroups;
-	// BaseAdapter can't be extended by Collection<?> so we're using this for now. We'll make our own later.
+	// BaseAdapter can't be extended by Collection<?> so we're using this for
+	// now. We'll make our own later.
 	private ArrayList<Group> mGroupsArray;
 	private GroupAdapter mGroupAdapter;
 	private Activity mActivity;
@@ -75,19 +76,17 @@ public class SearchGroups extends ListActivity {
 		getListView().setVerticalScrollBarEnabled(false);
 
 		// Start the retrieval of Groups thread.
-		Thread retrieveThread =  new Thread(null, rRetrieveGroups, Flicka.FLICKA_THREAD_NAME);
+		Thread retrieveThread = new Thread(null, rRetrieveGroups, Flicka.FLICKA_THREAD_NAME);
 		retrieveThread.start();
 	}
 
 	public GroupList search(String searchTerms) {
-		Utilities.debugLog(mContext, "Searching groups.");
 		GroupsInterface iFace = mAuthorize.flickr.getGroupsInterface();
 		GroupList result;
 		try {
 			result = (GroupList) iFace.search(searchTerms, mResultsPerPage, mResultsPageNum);
-			Utilities.debugLog(mContext, "Found: " + result.size());
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to search for: " + searchTerms, e);
+			e.printStackTrace();
 			return null;
 		}
 
@@ -104,26 +103,26 @@ public class SearchGroups extends ListActivity {
 	};
 
 	/**
-	 * This can be invoked from within a thread upon it's completion to close a progress
-	 * dialog and perform other tasks. The defined progress dialogs are protected static final
-	 * int variables defined in ActivityGroups.
+	 * This can be invoked from within a thread upon it's completion to close a
+	 * progress dialog and perform other tasks. The defined progress dialogs are
+	 * protected static final int variables defined in ActivityGroups.
 	 */
 	public Handler progressDialogHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-				case PROGRESS_SEARCH_COMPLETE:
-					Loading.update(mActivity, Loading.ACTIVITY_LOADING_TEXT, R.string.progress_loading_groups);
-					Thread loadThread =  new Thread(null, rLoadGroups, Flicka.FLICKA_THREAD_NAME);
-					loadThread.start();
-					break;
-				case PROGRESS_LOAD_GROUPS:
-					renderViewGroups();
-					break;
-				case PROGRESS_SEARCH_MORE_COMPLETE:
-					Thread loadMoreThread =  new Thread(null, rLoadGroups, Flicka.FLICKA_THREAD_NAME);
-					loadMoreThread.start();
-					break;
+			case PROGRESS_SEARCH_COMPLETE:
+				Loading.update(mActivity, Loading.ACTIVITY_LOADING_TEXT, R.string.progress_loading_groups);
+				Thread loadThread = new Thread(null, rLoadGroups, Flicka.FLICKA_THREAD_NAME);
+				loadThread.start();
+				break;
+			case PROGRESS_LOAD_GROUPS:
+				renderViewGroups();
+				break;
+			case PROGRESS_SEARCH_MORE_COMPLETE:
+				Thread loadMoreThread = new Thread(null, rLoadGroups, Flicka.FLICKA_THREAD_NAME);
+				loadMoreThread.start();
+				break;
 			}
 
 			super.handleMessage(msg);
@@ -135,9 +134,9 @@ public class SearchGroups extends ListActivity {
 	 */
 	private final Runnable returnRes = new Runnable() {
 		public void run() {
-			if(mGroupsArray != null && mGroupsArray.size() > 0) {
+			if (mGroupsArray != null && mGroupsArray.size() > 0) {
 				mGroupAdapter.notifyDataSetChanged();
-				for(int i=0; i < mGroupsArray.size(); i++) {
+				for (int i = 0; i < mGroupsArray.size(); i++) {
 					mGroupAdapter.add(mGroupsArray.get(i));
 				}
 			}
@@ -156,7 +155,7 @@ public class SearchGroups extends ListActivity {
 		}
 	};
 
-	private final Runnable rLoadGroups = new Runnable(){
+	private final Runnable rLoadGroups = new Runnable() {
 		public void run() {
 			convertGroups();
 		}
@@ -164,14 +163,14 @@ public class SearchGroups extends ListActivity {
 
 	private void renderViewGroups() {
 		try {
-			if (mGroups.getTotal() > 0){
+			if (mGroups.getTotal() > 0) {
 				Loading.dismiss(mActivity, Loading.ACTIVITY_LOADING_PARENT, Loading.ACTIVITY_LOADING_PARENT);
 			} else {
 				Loading.noDisplay(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_NO_DISPLAY);
 			}
 			Utilities.setupActivityBreadcrumbEndText(mActivity, mGroups.getTotal() + " " + getString(R.string.group_total_count));
 		} catch (Exception e) {
-			Utilities.errorOccurred(mContext, "Unable to initialize groups.", e);
+			e.printStackTrace();
 			Loading.failed(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_FAILED_LOAD);
 		}
 	}
@@ -183,27 +182,26 @@ public class SearchGroups extends ListActivity {
 	private void convertGroups() {
 		mGroupsArray = new ArrayList<Group>();
 		try {
-			if(mGroups != null) {
+			if (mGroups != null) {
 				Iterator<Group> groupsIterator = mGroups.iterator();
-				while(groupsIterator.hasNext()) {
+				while (groupsIterator.hasNext()) {
 					Group group = groupsIterator.next();
 					mGroupsArray.add(group);
 				}
 			}
-			Utilities.debugLog(this, "Built array. Num objects: " + mGroupsArray.size());
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to get groups.", e);
+			e.printStackTrace();
 		}
 
 		runOnUiThread(returnRes);
 	}
-	
+
 	/**
 	 * Start a thread to get more search results.
 	 */
 	@SuppressWarnings("unchecked")
 	private void searchMoreGroups() {
-		Thread searchMoreThread = new Thread(){
+		Thread searchMoreThread = new Thread() {
 			@Override
 			public void run() {
 				mResultsPageNum++;
@@ -217,7 +215,8 @@ public class SearchGroups extends ListActivity {
 	}
 
 	/**
-	 * This is an adapter class that adds certain view functionalities to an array list.
+	 * This is an adapter class that adds certain view functionalities to an
+	 * array list.
 	 */
 	private class GroupAdapter extends ArrayAdapter<Group> {
 		private final ArrayList<Group> items;
@@ -225,9 +224,11 @@ public class SearchGroups extends ListActivity {
 		/**
 		 * The constructor. Note the reference to super.
 		 * 
-		 * @param Context context
+		 * @param Context
+		 *            context
 		 * @param int textViewResourceId
-		 * @param ArrayList<Group> items
+		 * @param ArrayList
+		 *            <Group> items
 		 */
 		public GroupAdapter(Context context, int textViewResourceId, ArrayList<Group> items) {
 			super(context, textViewResourceId, items);
@@ -238,18 +239,24 @@ public class SearchGroups extends ListActivity {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			if (view == null) {
-				LayoutInflater viewInflator = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				LayoutInflater viewInflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				view = viewInflator.inflate(R.layout.row_groups_search, null);
 			}
 
 			Group group = items.get(position);
 			if (group != null) {
 				final TextView groupName = (TextView) view.findViewById(R.id.groupname);
-				// TextView eighteenPlus = (TextView) view.findViewById(R.id.eighteenPlus);
+				// TextView eighteenPlus = (TextView)
+				// view.findViewById(R.id.eighteenPlus);
 
 				groupName.setText(group.getName());
 			} else {
-				Utilities.debugLog(this, "Group should not be null! Position: " + position);
+				try {
+					throw new Exception("Group should not be null! Position: " + position);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 			return view;
@@ -269,15 +276,16 @@ public class SearchGroups extends ListActivity {
 	}
 
 	/**
-	 * Determine and execute which action to take when a menu item has been selected from
-	 * the menu that is shown when the menu button is pressed.
+	 * Determine and execute which action to take when a menu item has been
+	 * selected from the menu that is shown when the menu button is pressed.
 	 * 
 	 * @return boolean
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		// This needs some logic help. The user may click on home before authenticate is finished.
+		// This needs some logic help. The user may click on home before
+		// authenticate is finished.
 		case R.id.load_more_results:
 			searchMoreGroups();
 			return true;

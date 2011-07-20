@@ -12,6 +12,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.aetrion.flickr.FlickrException;
 import com.aetrion.flickr.contacts.Contact;
@@ -42,7 +43,7 @@ public class NotifyReciever extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Utilities.debugLog(this, "Notify reciever started");
+		Log.d("Flicka", "Notify reciever started");
 		mContext = context;
 		mIntent = intent;
 
@@ -64,7 +65,7 @@ public class NotifyReciever extends BroadcastReceiver {
 			}
 
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to get and then notify user of contact updates.", e);
+			e.printStackTrace();
 		}
 	}
 
@@ -91,7 +92,7 @@ public class NotifyReciever extends BroadcastReceiver {
 			setNotifyTime(CONTACT_UPDATE_SECTION);
 		}
 
-		Utilities.debugLog(mContext, "Ran getContactsUpdate. Got: " + temp.size());
+		Log.d("Flicka", "Ran getContactsUpdate. Got: " + temp.size());
 		return temp;
 	}
 
@@ -108,18 +109,16 @@ public class NotifyReciever extends BroadcastReceiver {
 	}
 
 	private void saveContactsNotify(Collection<Contact> contacts) {
-		Utilities.debugLog(this, "saveContactsNotify running");
+		Log.d("Flicka", "saveContactsNotify running");
 		if (contacts == null) {
 			return;
 		}
 
 		Database dbObj = new Database(mContext);
-		dbObj.open();
 		Object[] contactsArray = contacts.toArray();
 		for (int i = 0; i < contactsArray.length; i++) {
 			dbObj.addContactsNotify((Contact) contactsArray[i], "Uploaded some photos.");
 		}
-		dbObj.close();
 	}
 
 	/**
@@ -132,12 +131,12 @@ public class NotifyReciever extends BroadcastReceiver {
 	 */
 	private void performContactsNotify(Collection<Contact> contacts) throws IOException, SAXException, FlickrException {
 		if (contacts == null) {
-			Utilities.debugLog(this, "Contacts update notification service ran but found null");
+			Log.d("Flicka", "Contacts update notification service ran but found null");
 			return;
 		}
 
 		if (contacts.size() < 1) {
-			Utilities.debugLog(this, "Contacts update notification service ran but 0 notifications to show");
+			Log.d("Flicka", "Contacts update notification service ran but 0 notifications to show");
 			return;
 		}
 
@@ -168,8 +167,7 @@ public class NotifyReciever extends BroadcastReceiver {
 		notification.flags = notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
 		mNotificationManager.notify(CONTACT_UPDATE, notification);
-
-		Utilities.debugLog(this, "Contacts update notification successful");
+		Log.d("Flicka", "Contacts update notification successful");
 	}
 
 	/**
@@ -177,8 +175,6 @@ public class NotifyReciever extends BroadcastReceiver {
 	 */
 	private void setNotifyTime(String sectionName) {
 		Database dbObj = new Database(mContext);
-		dbObj.open();
 		dbObj.setUpdateTime(sectionName);
-		dbObj.close();
 	}
 }

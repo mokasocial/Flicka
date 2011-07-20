@@ -6,7 +6,29 @@ import java.io.InputStream;
 
 import org.xml.sax.SAXException;
 
-import com.aetrion.flickr.contacts.OnlineStatus;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.aetrion.flickr.FlickrException;
 import com.aetrion.flickr.favorites.FavoritesInterface;
 import com.aetrion.flickr.people.PeopleInterface;
 import com.aetrion.flickr.people.User;
@@ -16,27 +38,6 @@ import com.aetrion.flickr.photos.PhotoList;
 import com.aetrion.flickr.photosets.Photoset;
 import com.aetrion.flickr.photosets.Photosets;
 import com.aetrion.flickr.photosets.PhotosetsInterface;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 
 // THIS IS ALL SORTS OF NEWB. NEEDS WORK, CACHING, ETC.
 
@@ -82,14 +83,12 @@ public class ActivityUser extends Activity {
 				mAuthorize = Authorize.initializeAuthObj(mContext);
 				userHandler.sendEmptyMessage(PROGRESS_AUTH_SET_COMPLETE);
 				try {
-					mUser = ActivityUser.initializeUser(mActivity, mAuthorize,
-							Flicka.INTENT_EXTRA_ACTIVITY_NSID);
+					mUser = ActivityUser.initializeUser(mActivity, mAuthorize, Flicka.INTENT_EXTRA_ACTIVITY_NSID);
 					mFavorites = getRecentFaves();
 					mPhotos = getRecentPhotos();
 					mSets = getSets();
 				} catch (Exception e) {
-					Utilities.errorOccurred(this, "Failed to initialize user",
-							e);
+					e.printStackTrace();
 				}
 				userHandler.sendEmptyMessage(PROGRESS_GET_USER_COMPLETE);
 			}
@@ -103,8 +102,7 @@ public class ActivityUser extends Activity {
 			switch (msg.what) {
 			case PROGRESS_AUTH_SET_COMPLETE:
 				final TextView loadingTextView = (TextView) findViewById(R.id.activity_loading_text);
-				loadingTextView
-				.setText(getString(R.string.progress_loading_user));
+				loadingTextView.setText(getString(R.string.progress_loading_user));
 				break;
 			case PROGRESS_GET_USER_COMPLETE:
 				renderViewUser();
@@ -118,7 +116,7 @@ public class ActivityUser extends Activity {
 			populateUserDetails(mUser);
 			Loading.dismiss(mActivity, Loading.ACTIVITY_LOADING_PARENT, Loading.ACTIVITY_LOADING_TARGET);
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to initialize user.", e);
+			e.printStackTrace();
 			Loading.failed(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_FAILED_LOAD);
 		}
 	}
@@ -132,40 +130,39 @@ public class ActivityUser extends Activity {
 	 * @throws SAXException
 	 * @throws FlickrException
 	 */
-	public static User initializeUser(Activity activity, Authorize authorize,
-			String extrasName) {
+	public static User initializeUser(Activity activity, Authorize authorize, String extrasName) {
 		try {
 			// Grab the passed NSID.
 			Intent intent = activity.getIntent();
 			Bundle extras = intent.getExtras();
 			String nsid = extras.getString(extrasName);
-			Utilities.debugLog(activity, "Populated user object with nsid: "
-					+ nsid);
+			Log.d("User", "Populated user object with nsid: " + nsid);
 
 			if (nsid == null) {
 				return null;
 			}
 
+			Database db = new Database(activity);
+
 			// Try DB first.
-			long lastUpdate = Database.getUserUpdateTime(nsid, activity);
+			long lastUpdate = db.getUserUpdateTime(nsid);
 
 			// Return the cached user if its within the accepted time limit.
-			if (lastUpdate != 0
-					&& lastUpdate > (System.currentTimeMillis()/1000L - Flicka.CACHED_USER_LIMIT)) {
-				Utilities.debugLog(activity, "User was found in cache.");
-				return Database.getUser(activity, nsid);
+			if (lastUpdate != 0 && lastUpdate > (System.currentTimeMillis() / 1000L - Flicka.CACHED_USER_LIMIT)) {
+				Log.d("User", "User was found in cache.");
+				return db.getUser(nsid);
 			}
 
 			// Grab the user from Flickr, cache, and return.
-			Utilities.debugLog(activity, "Grabbing fresh user details.");
+			Log.d("User", "Grabbing fresh user details.");
 			PeopleInterface pIface = authorize.flickr.getPeopleInterface();
 			User freshUser = pIface.getInfo(nsid);
-			Database.addUser(freshUser, activity);
-			Database.addContactDerivedFromUser(freshUser, activity);
-			
+			db.addUser(freshUser);
+			db.addContactDerivedFromUser(freshUser);
+
 			return freshUser;
 		} catch (Exception e) {
-			Utilities.errorOccurred(activity, "Problem initializing user.", e);
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -184,19 +181,16 @@ public class ActivityUser extends Activity {
 		final ImageView userIsProView = (ImageView) findViewById(R.id.details_user_pro);
 
 		userNameTextView.setText(user.getUsername());
-		Utilities.debugLog(this, user.getBuddyIconUrl());
+		Log.d("User", user.getBuddyIconUrl());
 
 		// Load image from cache
-		InputStream is = ImageMgmt.loadImage(user.getBuddyIconUrl(), new File(
-				Flicka.CONTACT_ICON_DIR));
+		InputStream is = ImageMgmt.loadImage(user.getBuddyIconUrl(), new File(Flicka.CONTACT_ICON_DIR));
 
 		// If it fails (missing SDCard)
 		if (is == null) {
 			is = ImageMgmt.fetchImage(user.getBuddyIconUrl());
-			ImageMgmt.saveImage(is, user.getBuddyIconUrl(), new File(
-					Flicka.CONTACT_ICON_DIR));
-			is = ImageMgmt.loadImage(user.getBuddyIconUrl(), new File(
-					Flicka.CONTACT_ICON_DIR));
+			ImageMgmt.saveImage(is, user.getBuddyIconUrl(), new File(Flicka.CONTACT_ICON_DIR));
+			is = ImageMgmt.loadImage(user.getBuddyIconUrl(), new File(Flicka.CONTACT_ICON_DIR));
 		}
 
 		String breadcrumb;
@@ -211,17 +205,13 @@ public class ActivityUser extends Activity {
 		// Load into Bitmap, let's add some rounded corners
 		Bitmap userIcon;
 		if (is != null) {
-			userIcon = ImageMgmt.getRndedCornerBtmp(BitmapFactory
-					.decodeStream(is), USER_ICON_CORNER_RADIUS);
+			userIcon = ImageMgmt.getRndedCornerBtmp(BitmapFactory.decodeStream(is), USER_ICON_CORNER_RADIUS);
 			try {
 				is.close();
 			} catch (IOException e) {
 			}
 		} else {
-			userIcon = ImageMgmt.getRndedCornerBtmp(BitmapFactory
-					.decodeResource(this.getResources(),
-							R.drawable.loading_user_icon),
-							USER_ICON_CORNER_RADIUS);
+			userIcon = ImageMgmt.getRndedCornerBtmp(BitmapFactory.decodeResource(this.getResources(), R.drawable.loading_user_icon), USER_ICON_CORNER_RADIUS);
 		}
 
 		userIconView.setImageBitmap(userIcon);
@@ -265,21 +255,16 @@ public class ActivityUser extends Activity {
 		favesGridView.setAdapter(mFavesAdapter);
 
 		favesGridView.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View v,
-					int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 				Photo photo = (Photo) mFavorites.get(position);
-				Intent intent = new Intent(ActivityUser.this,
-						ActivityPhoto.class);
-				intent.putExtra(Flicka.INTENT_EXTRA_VIEWPHOTO_PHOTOID, photo
-						.getId());
+				Intent intent = new Intent(ActivityUser.this, ActivityPhoto.class);
+				intent.putExtra(Flicka.INTENT_EXTRA_VIEWPHOTO_PHOTOID, photo.getId());
 
 				// Send the details so we can do a slideshow if the user wants
 				Bundle slideShow = new Bundle();
 				slideShow.putInt(SlideShow.CURRENT_ITEM, position + 1);
-				slideShow.putInt(SlideShow.CURRENT_STREAM,
-						SlideShow.STREAM_FAVORITES);
-				slideShow
-				.putString(SlideShow.CURRENT_IDENTIFIER, mUser.getId());
+				slideShow.putInt(SlideShow.CURRENT_STREAM, SlideShow.STREAM_FAVORITES);
+				slideShow.putString(SlideShow.CURRENT_IDENTIFIER, mUser.getId());
 				intent.putExtra(Flicka.INTENT_EXTRA_SLIDESHOW, slideShow);
 
 				startActivity(intent);
@@ -289,14 +274,14 @@ public class ActivityUser extends Activity {
 
 	private void populateUserPhotosets() {
 
-		LayoutInflater viewInflator = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LayoutInflater viewInflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		final RelativeLayout setsLayout = (RelativeLayout) findViewById(R.id.user_sets);
 		setsLayout.setVisibility(RelativeLayout.VISIBLE);
 
 		Object[] setsArray = mSets.getPhotosets().toArray();
 		final LinearLayout photosetList = (LinearLayout) findViewById(R.id.set_list);
 
-		for (int i=0;i<setsArray.length;i++){
+		for (int i = 0; i < setsArray.length; i++) {
 			View setView = viewInflator.inflate(R.layout.row_photosets_list, null);
 
 			final Photoset photoset = (Photoset) setsArray[i];
@@ -304,7 +289,7 @@ public class ActivityUser extends Activity {
 			final TextView userlinetwoView = (TextView) setView.findViewById(R.id.userlinetwo);
 
 			// Prefer real name. If none is set, use the user name.
-			if(photoset.getTitle().length() != 0) {
+			if (photoset.getTitle().length() != 0) {
 				usernameTextView.setText(photoset.getTitle());
 			} else {
 				usernameTextView.setText("");
@@ -346,57 +331,13 @@ public class ActivityUser extends Activity {
 				// Send the details so we can do a slideshow if the user wants
 				Bundle slideShow = new Bundle();
 				slideShow.putInt(SlideShow.CURRENT_ITEM, position + 1);
-				slideShow.putInt(SlideShow.CURRENT_STREAM,
-						SlideShow.STREAM_USER_PHOTOS);
-				slideShow
-				.putString(SlideShow.CURRENT_IDENTIFIER, mUser.getId());
+				slideShow.putInt(SlideShow.CURRENT_STREAM, SlideShow.STREAM_USER_PHOTOS);
+				slideShow.putString(SlideShow.CURRENT_IDENTIFIER, mUser.getId());
 				intent.putExtra(Flicka.INTENT_EXTRA_SLIDESHOW, slideShow);
 
 				startActivity(intent);
 			}
 		});
-	}
-
-	/**
-	 * Turns out that sometimes online status isn't even set hence the missing
-	 * return value. Otherwise, this function converts the OnlineStatus object
-	 * of the User and gives a string. We will have to put these into the string
-	 * values file but for now they can stick here until we settle on how to
-	 * show them.
-	 * 
-	 * Deprecating this since it doesn't appear that the Flickr API gives us
-	 * Online Status anyway.
-	 * 
-	 * @deprecated
-	 * @param onlineStatus
-	 * @return
-	 */
-	@Deprecated
-	@SuppressWarnings("unused")
-	private String getOnlineStatus(OnlineStatus onlineStatus) {
-		String stringStatus = "";
-
-		if (onlineStatus == null) {
-			Utilities.debugLog(this, "OnlineStatus object was null.");
-			return "missing";
-		}
-
-		switch (onlineStatus.getType()) {
-		case OnlineStatus.OFFLINE_TYPE:
-			stringStatus = "offline";
-			break;
-		case OnlineStatus.ONLINE_TYPE:
-			stringStatus = "online";
-			break;
-		case OnlineStatus.AWAY_TYPE:
-			stringStatus = "away";
-			break;
-		default:
-			stringStatus = "unknown";
-			break;
-		}
-
-		return stringStatus;
 	}
 
 	public void viewFavorites(View view) {
@@ -425,7 +366,7 @@ public class ActivityUser extends Activity {
 			FavoritesInterface iFace = mAuthorize.flickr.getFavoritesInterface();
 			return iFace.getList(mUser.getId(), RECENT_FAVES_LIMIT, 1, Extras.MIN_EXTRAS);
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to get recent faves", e);
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -435,7 +376,7 @@ public class ActivityUser extends Activity {
 			PhotosetsInterface sFace = mAuthorize.flickr.getPhotosetsInterface();
 			return sFace.getList(mUser.getId());
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to get user Photosets", e);
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -446,7 +387,7 @@ public class ActivityUser extends Activity {
 			String userNsid = mUser.getId() == mAuthorize.authObj.getUser().getId() ? "me" : mUser.getId();
 			return iFace.getPhotos(userNsid, RECENT_PHOTOS_LIMIT, 1, Extras.MIN_EXTRAS);
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to get recent photos", e);
+			e.printStackTrace();
 			return null;
 		}
 	}

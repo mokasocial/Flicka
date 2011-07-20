@@ -40,6 +40,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -240,10 +241,10 @@ public class Flicka extends ListActivity {
 
 					// We have a connection but we still need to test the route
 					if (networkInfo != null && networkInfo.isConnected()) {
-						Utilities.debugLog(mContext, "Android network state: " + networkInfo.getState().toString());
+						Log.d("Flicka", "Android network state: " + networkInfo.getState().toString());
 						NETWORK_AVAILABLE = true;
 					} else {
-						Utilities.debugLog(mContext, "Android network state: null");
+						Log.d("Flicka", "Android network state: null");
 					}
 
 					// Only do this part of the test if the device thinks it has
@@ -261,11 +262,11 @@ public class Flicka extends ListActivity {
 							if (httpResponse != HttpURLConnection.HTTP_OK) {
 								throw new Exception("Response from '" + FLICKR_MOBILE_URL + "' invalid.");
 							} else {
-								Utilities.debugLog(mContext, "Trace route to Flickr API successful");
+								Log.d("Flicka", "Trace route to Flickr API successful");
 							}
 						} catch (Exception e) {
 							NETWORK_AVAILABLE = false;
-							Utilities.debugLog(mContext, e.getMessage());
+							Log.d("Flicka", e.getMessage());
 						} finally {
 							if (conn != null) {
 								conn.disconnect();
@@ -273,7 +274,7 @@ public class Flicka extends ListActivity {
 						}
 					}
 				} catch (Exception e) {
-					Utilities.errorOccurred(mContext, "Network test failed", e);
+					e.printStackTrace();
 				}
 
 				// Start Flicka or display network error message.
@@ -302,7 +303,7 @@ public class Flicka extends ListActivity {
 					NotifyMgmt.initNotifications(mContext);
 					// Update the name below the status bar.
 					String username = mAuthorize.authObj.getUser().getUsername();
-					Utilities.debugLog(mContext, "User permission level: " + mAuthorize.authObj.getPermission().toString());
+					Log.d("Flicka", "User permission level: " + mAuthorize.authObj.getPermission().toString());
 					// Set up the layout and title bar
 					setTitle(getTitle() + " Home");
 					setContentView(R.layout.view_home);
@@ -320,7 +321,7 @@ public class Flicka extends ListActivity {
 					}
 
 				} catch (Exception e) {
-					Utilities.errorOccurred(mContext, "Unable to launch Flicka with valid token.", e);
+					e.printStackTrace();
 				}
 			} else {
 				setContentView(R.layout.view_new_user);
@@ -333,7 +334,8 @@ public class Flicka extends ListActivity {
 			}
 		} else {
 			// Check to see if ever signed in
-			String nsid = Database.getLastAuthNsid(mContext);
+			Database db = new Database(mContext);
+			String nsid = db.getLastAuthNsid();
 			// If no, show disabled sign in button
 			if (nsid == null) {
 				setContentView(R.layout.view_new_user);
@@ -345,9 +347,9 @@ public class Flicka extends ListActivity {
 
 				setContentView(R.layout.view_home);
 
-				User you = Database.getUser(mContext, nsid);
+				User you = db.getUser(nsid);
 				if (you != null) {
-					String username = Database.getUser(mContext, nsid).getUsername();
+					String username = db.getUser(nsid).getUsername();
 					final TextView currentRankText = (TextView) findViewById(R.id.home_welcome_msg);
 					currentRankText.setText(getString(R.string.home_welcome_msg).replace(PLACEHOLDER_USERNAME, username));
 				}
@@ -423,13 +425,10 @@ public class Flicka extends ListActivity {
 	}
 
 	private void populateNotifications() {
-		Utilities.debugLog(mContext, "Attempting to populate notifications");
+		Log.d("Flicka", "Attempting to populate notifications");
 		Database dbObj = new Database(mContext);
-		dbObj.open();
 		mNotificationsArray = dbObj.getContactsNotify();
-		dbObj.close();
-
-		Utilities.debugLog(mContext, "Checked DB, found # contacts to notify about: " + mNotificationsArray.size());
+		Log.d("Flicka", "Checked DB, found # contacts to notify about: " + mNotificationsArray.size());
 
 		if (mNotificationsArray != null) {
 			mNotificationsAdapter = new NotificationsAdapter(mContext, R.layout.row_groups_list, mNotificationsArray);
@@ -504,7 +503,7 @@ public class Flicka extends ListActivity {
 				userlinetwo.setText(updateMsg);
 
 			} else {
-				Utilities.debugLog(mContext, "NotifyMap should not be null! Position: " + position);
+				Log.d("Flicka", "NotifyMap should not be null! Position: " + position);
 			}
 
 			return view;
@@ -547,7 +546,7 @@ public class Flicka extends ListActivity {
 				try {
 					Thread.sleep(1000);
 				} catch (Exception e) {
-					Utilities.errorOccurred(mContext, "Unable to Thread.sleep() while saving token.", e);
+					e.printStackTrace();
 				}
 
 				runOnUiThread(new Runnable() {
@@ -556,9 +555,10 @@ public class Flicka extends ListActivity {
 						try {
 							mAuthorize.fetchNewUserInfo();
 							mAuthorize.saveToken();
-							Database.addUser(mAuthorize.authObj.getUser(), mContext);
+							Database db = new Database(mContext);
+							db.addUser(mAuthorize.authObj.getUser());
 						} catch (Exception e) {
-							Utilities.errorOccurred(mContext, "Unable to fetch/save new user info.", e);
+							e.printStackTrace();
 							ERROR_SAVE_AUTH_TOKEN = true;
 						}
 					}
@@ -609,7 +609,7 @@ public class Flicka extends ListActivity {
 	public void showCameraIntent() {
 		Intent takePictureFromCameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 		mCameraFilePath = CAMERA_FILE_PATH + "camera_" + Long.toString(System.currentTimeMillis()) + ".jpg";
-		Utilities.debugLog(mContext, "Camera to use file name: " + mCameraFilePath);
+		Log.d("Flicka", "Camera to use file name: " + mCameraFilePath);
 		takePictureFromCameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(mCameraFilePath)));
 		startActivityForResult(takePictureFromCameraIntent, REQUEST_CAMERA_IMAGE);
 	}
@@ -694,11 +694,11 @@ public class Flicka extends ListActivity {
 			Intent flickrAuthWebIntent = new Intent(mContext, ActivityWebAuth.class);
 			String authUrl = mAuthorize.createAuthUrl();
 			flickrAuthWebIntent.putExtra(INTENT_EXTRA_WEBAUTH_URL, authUrl);
-			Utilities.debugLog(mContext, authUrl);
+			Log.d("Flicka", authUrl);
 
 			startActivityForResult(flickrAuthWebIntent, WEB_AUTHENTICATE);
 		} catch (Exception e) {
-			Utilities.errorOccurred(mContext, "Unable to open Flickr web auth intent.", e);
+			e.printStackTrace();
 		}
 	}
 
@@ -753,39 +753,39 @@ public class Flicka extends ListActivity {
 			break;
 		case REQUEST_CAMERA_IMAGE:
 			if (resultCode == Activity.RESULT_OK) {
-				Utilities.debugLog(mContext, "Returned from activity. Starting upload activity");
+				Log.d("Flicka", "Returned from activity. Starting upload activity");
 
 				Uri imageUri = Uri.fromFile(new File(mCameraFilePath));
 				try {
 					android.provider.MediaStore.Images.Media.insertImage(getContentResolver(), imageUri.toString(), null, null);
 				} catch (FileNotFoundException e) {
-					Utilities.errorOccurred(mContext, "Could not insert new camera image details into MediaStore", e);
+					e.printStackTrace();
 				}
 
 				Intent uploadIntent = new Intent(mContext, ActivityUpload.class);
 				uploadIntent.putExtra(INTENT_EXTRA_FILE_URI, imageUri);
-				Utilities.debugLog(mContext, "URI: " + imageUri.getPath());
+				Log.d("Flicka", "URI: " + imageUri.getPath());
 				startActivityForResult(uploadIntent, UPLOAD_IMAGE);
 			}
 			break;
 		case REQUEST_PHONE_IMAGE:
 			if (resultCode == Activity.RESULT_OK) {
-				Utilities.debugLog(mContext, "Returned from activity. Starting upload activity");
+				Log.d("Flicka", "Returned from activity. Starting upload activity");
 
 				Uri imageUri = intent.getData();
 				imageUri = Uri.parse(Utilities.getRealPathFromURI(mActivity, imageUri));
 
 				Intent uploadIntent = new Intent(mContext, ActivityUpload.class);
 				uploadIntent.putExtra(INTENT_EXTRA_FILE_URI, imageUri);
-				Utilities.debugLog(mContext, "URI: " + imageUri.getPath());
+				Log.d("Flicka", "URI: " + imageUri.getPath());
 				startActivityForResult(uploadIntent, UPLOAD_IMAGE);
 			}
 			break;
 		case UPLOAD_IMAGE:
-			Utilities.debugLog(mContext, "Returned from activity ActivityUpload");
+			Log.d("Flicka", "Returned from activity ActivityUpload");
 			break;
 		default:
-			Utilities.debugLog(mContext, "onActivityResult was triggered but no case was valid.");
+			Log.d("Flicka", "onActivityResult was triggered but no case was valid.");
 			break;
 		}
 	}

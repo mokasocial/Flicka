@@ -10,31 +10,30 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
- * This class is tightly coupled with the loading spinner stuff on the start of certain
- * activities.
+ * This class is tightly coupled with the loading spinner stuff on the start of
+ * certain activities.
  * 
  * The following are REQUIRED for this class to work within your activities:
  * 
  * 
- *  <include android:id="@+id/loading" layout="@layout/loading"/>  
- *  
- * 	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
- *	    android:id="@+id/activity_layout"
- *	    android:layout_width="fill_parent"
- *	    android:layout_height="fill_parent"
- *   	android:visibility="gone">
+ * <include android:id="@+id/loading" layout="@layout/loading"/>
  * 
- *   ..........
- *   
- *   
- *  </RelativeLayout>
+ * <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ * android:id="@+id/activity_layout" android:layout_width="fill_parent"
+ * android:layout_height="fill_parent" android:visibility="gone">
+ * 
+ * ..........
  * 
  * 
- * @author Michael Hradek mhradek@gmail.com, mhradek@mokasocial.com, mhradek@flicka.mobi
+ * </RelativeLayout>
+ * 
+ * 
+ * @author Michael Hradek mhradek@gmail.com, mhradek@mokasocial.com,
+ *         mhradek@flicka.mobi
  * @date 2010.02.06
  */
 public class Loading {
-	
+
 	/**
 	 * This set of constants are for use for loading activities
 	 */
@@ -45,7 +44,7 @@ public class Loading {
 	public static final int ACTIVITY_LOADING_LAYOUT = R.id.activity_loading;
 	public static final int ACTIVITY_FAILED_LOAD = R.id.activity_failed_load;
 	public static final int ACTIVITY_NO_DISPLAY = R.id.activity_no_display;
-	
+
 	/**
 	 * This set of constants are for use for loading drawers
 	 */
@@ -56,7 +55,7 @@ public class Loading {
 	public static final int DRAWER_LOADING_LAYOUT = R.id.drawer_loading;
 	public static final int DRAWER_FAILED_LOAD = R.id.drawer_failed_load;
 	public static final int DRAWER_NO_DISPLAY = R.id.drawer_no_display;
-	
+
 	/**
 	 * Animate the given image (by id) by rotating it.
 	 * 
@@ -66,18 +65,15 @@ public class Loading {
 	public static void rotatingAnimImageView(Activity activity, int imageViewId) {
 		final ImageView imageView = (ImageView) activity.findViewById(imageViewId);
 		float positionPercentage = (float) 0.5;
-		Animation anim = new RotateAnimation(0, 360, 
-				Animation.RELATIVE_TO_SELF, positionPercentage, 
-				Animation.RELATIVE_TO_SELF, positionPercentage
-				);
+		Animation anim = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, positionPercentage, Animation.RELATIVE_TO_SELF, positionPercentage);
 		anim.setRepeatCount(Animation.INFINITE);
 		anim.setDuration(500L);
 		anim.setRepeatMode(Animation.RESTART);
 		anim.setInterpolator(new LinearInterpolator());
 
-		imageView.startAnimation(anim); 
+		imageView.startAnimation(anim);
 	}
-	
+
 	/**
 	 * Start the loading display.
 	 * 
@@ -90,7 +86,7 @@ public class Loading {
 		loadingTextView.setText(activity.getString(loadingTextId));
 		Loading.rotatingAnimImageView(activity, loadingIconId);
 	}
-	
+
 	/**
 	 * Update the text inside the loading display. Optional.
 	 * 
@@ -102,10 +98,10 @@ public class Loading {
 		final TextView loadingTextView = (TextView) activity.findViewById(loadingTextViewId);
 		loadingTextView.setText(activity.getString(updatedLoadingTextId));
 	}
-	
+
 	/**
-	 * Dismiss the loading mechanism and display whatever was inside the activity_layout
-	 * LinearLayout container.
+	 * Dismiss the loading mechanism and display whatever was inside the
+	 * activity_layout LinearLayout container.
 	 * 
 	 * @param activity
 	 * @param loadingParentViewId
@@ -118,10 +114,10 @@ public class Loading {
 			final RelativeLayout activityView = (RelativeLayout) activity.findViewById(subsequentViewId);
 			activityView.setVisibility(RelativeLayout.VISIBLE);
 		} catch (Exception e) {
-			Utilities.debugLog(activity, "Unable to make primary display box to front.");
+			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Change from the loading mechanism to the failed to load display.
 	 * 
@@ -135,7 +131,7 @@ public class Loading {
 		relativeLayout = (RelativeLayout) activity.findViewById(failedLoadViewId);
 		relativeLayout.setVisibility(RelativeLayout.VISIBLE);
 	}
-	
+
 	/**
 	 * Change from the loading mechanism to the no display display.
 	 * 

@@ -19,6 +19,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 
 /**
  * An icon management class which uses the url and local save paths to fetch,
@@ -54,7 +55,7 @@ public class ImageMgmt {
 		try {
 			in = new BufferedInputStream(new URL(urlString).openStream(), IO_BUFFER_SIZE);
 		} catch (Exception e) {
-			Utilities.errorOccurred(thisObj, "Unable to fetch contact icon.", e);
+			e.printStackTrace();
 			return null;
 		}
 
@@ -85,7 +86,7 @@ public class ImageMgmt {
 				spaceLeft = CHUNKSIZE - chunkIndex;
 			}
 		} catch (IOException e) {
-			Utilities.errorOccurred(thisObj, "Unable to convert buffered input stream to byte array.", e);
+			e.printStackTrace();
 			return null;
 		}
 
@@ -93,7 +94,7 @@ public class ImageMgmt {
 			try {
 				in.close();
 			} catch (IOException e) {
-				Utilities.errorOccurred(thisObj, "Unable to close open buffered input stream.", e);
+				e.printStackTrace();
 				return null;
 			}
 		}
@@ -120,13 +121,13 @@ public class ImageMgmt {
 		String iconFilename = Utilities.extractFilenameFromUrl(urlString);
 		ImageMgmt thisObj = ImageMgmt.createIconMgmtObj();
 
-		Utilities.debugLog(thisObj, "Attempting to save '" + iconFilename + "' locally.");
+		Log.d("Flicka", "Attempting to save '" + iconFilename + "' locally.");
 
 		// If this isn't a contact icon file, we need the full URL path to
 		// create the directory.
 		if (iconFilename.contains("@") == false) {
 			String tempPath = directory.getPath() + File.separator + Utilities.extractDirectoryFromUrl(urlString);
-			Utilities.debugLog(thisObj, "PATH: " + tempPath);
+			Log.d("Flicka", "PATH: " + tempPath);
 			directory = new File(tempPath);
 		}
 
@@ -151,7 +152,7 @@ public class ImageMgmt {
 			out.close();
 			clearBitmap(bmp);
 		} catch (Exception e) {
-			Utilities.errorOccurred(thisObj, "Unable to save image file to SD.", e);
+			e.printStackTrace();
 		}
 	}
 
@@ -171,7 +172,7 @@ public class ImageMgmt {
 		// create the directory.
 		if (iconFilename.contains("@") == false) {
 			String tempPath = directory.getPath() + File.separator + Utilities.extractDirectoryFromUrl(urlString);
-			Utilities.debugLog(thisObj, "PATH: " + tempPath);
+			Log.d("Flicka", "PATH: " + tempPath);
 			directory = new File(tempPath);
 		}
 
@@ -180,14 +181,14 @@ public class ImageMgmt {
 			// The directory doesn't exist so either the save function never ran
 			// or there is no SD card
 			if (!directory.exists()) {
-				Utilities.debugLog(thisObj, "Directory " + directory.getPath() + " does not exist.");
+				Log.d("Flicka", "Directory " + directory.getPath() + " does not exist.");
 				return null;
 			}
 
 			// The file doesn't exist so it's new
 			File iconFile = new File(directory.getPath() + File.separator + iconFilename);
 			if (!iconFile.exists()) {
-				Utilities.debugLog(thisObj, "File path " + directory.getPath() + File.separator + iconFilename + " does not exist.");
+				Log.d("Flicka", "File path " + directory.getPath() + File.separator + iconFilename + " does not exist.");
 				return null;
 			}
 
@@ -197,10 +198,10 @@ public class ImageMgmt {
 			}
 
 			in = new BufferedInputStream(new FileInputStream(iconFile), IO_BUFFER_SIZE);
-			Utilities.debugLog(thisObj, "File " + iconFilename + " exists and returning stream.");
+			Log.d("Flicka", "File " + iconFilename + " exists and returning stream.");
 
 		} catch (Exception e) {
-			Utilities.errorOccurred(thisObj, "Unable to load contact icon locally.", e);
+			e.printStackTrace();
 		}
 
 		return in;
@@ -273,7 +274,7 @@ public class ImageMgmt {
 			newHeight = targetHeight;
 		}
 
-		Utilities.debugLog(createIconMgmtObj(), "Resizing to WxH: " + newWidth + "x" + newHeight);
+		Log.d("Flicka", "Resizing to WxH: " + newWidth + "x" + newHeight);
 
 		return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
 	}

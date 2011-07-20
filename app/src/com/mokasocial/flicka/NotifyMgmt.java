@@ -6,6 +6,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 /**
  * This class sets up the notifications and relies on the PrefsMgmt class to
@@ -31,7 +32,7 @@ public class NotifyMgmt {
 	public static void initNotifications(Context context) {
 		NotifyMgmt statusbarNotifyObj = NotifyMgmt.createStatusbarNotify();
 		try {
-			Utilities.debugLog(statusbarNotifyObj, "Initializing the notifications service");
+			Log.d("Flicka", "Initializing the notifications service");
 
 			Calendar calendar = Calendar.getInstance();
 
@@ -47,7 +48,7 @@ public class NotifyMgmt {
 			// Do not wake phone
 			alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HALF_DAY, sender);
 		} catch (Exception e) {
-			Utilities.errorOccurred(statusbarNotifyObj, "Unable to initialize notifications", e);
+			e.printStackTrace();
 		}
 	}
 
@@ -57,14 +58,14 @@ public class NotifyMgmt {
 	 * @param context
 	 */
 	public static void cancelNotifications(Context context) {
-		NotifyMgmt statusbarNotifyObj = NotifyMgmt.createStatusbarNotify();
+		// NotifyMgmt statusbarNotifyObj = NotifyMgmt.createStatusbarNotify();
 		try {
 			Intent intent = new Intent(context, NotifyReciever.class);
 			PendingIntent sender = PendingIntent.getBroadcast(context, Flicka.BROADCAST_RQST_UPDATE_NOTIFICATIONS, intent, 0);
 			AlarmManager alarmManager = (AlarmManager) context.getSystemService(Flicka.ALARM_SERVICE);
 			alarmManager.cancel(sender);
 		} catch (Exception e) {
-			Utilities.errorOccurred(statusbarNotifyObj, "Unable to cancel notifications", e);
+			e.printStackTrace();
 		}
 	}
 

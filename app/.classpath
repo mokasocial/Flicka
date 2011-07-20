@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="/Users/john/Desktop/flicka/external/flickrjapi-source/flickrapi-1.2-custom.jar"/>
-	<classpathentry kind="lib" path="/Users/john/Desktop/flicka/external/JEntities.jar"/>
+	<classpathentry kind="lib" path="lib/JEntities.jar"/>
+	<classpathentry kind="lib" path="lib/flickrjapi-source/flickrapi-1.2-custom.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,9 +1,5 @@
 package com.mokasocial.flicka;
 
-import com.aetrion.flickr.places.Place;
-import com.aetrion.flickr.places.PlacesInterface;
-import com.aetrion.flickr.places.PlacesList;
-
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
@@ -15,9 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
+
+import com.aetrion.flickr.places.Place;
+import com.aetrion.flickr.places.PlacesInterface;
+import com.aetrion.flickr.places.PlacesList;
 
 public class SearchPlaces extends ListActivity {
 
@@ -28,8 +28,8 @@ public class SearchPlaces extends ListActivity {
 	private Context mContext;
 	private String mSearchTerms;
 
-	//private int mResultsPerPage = 18;
-	//private int mResultsPageNum = 1;
+	// private int mResultsPerPage = 18;
+	// private int mResultsPageNum = 1;
 
 	/**
 	 * These variables hold unique integers for the dismissal of progress dialog
@@ -60,7 +60,7 @@ public class SearchPlaces extends ListActivity {
 		mSearchTerms = extras.getString(Flicka.INTENT_EXTRA_SEARCH_TERMS);
 
 		// Start the retrieval of Groups thread.
-		Thread retrieveThread =  new Thread(null, rRetrievePlaces, Flicka.FLICKA_THREAD_NAME);
+		Thread retrieveThread = new Thread(null, rRetrievePlaces, Flicka.FLICKA_THREAD_NAME);
 		retrieveThread.start();
 	}
 
@@ -73,9 +73,9 @@ public class SearchPlaces extends ListActivity {
 	};
 
 	/**
-	 * This can be invoked from within a thread upon it's completion to close a progress
-	 * dialog and perform other tasks. The defined progress dialogs are protected static final
-	 * int variables defined in ActivityGroups.
+	 * This can be invoked from within a thread upon it's completion to close a
+	 * progress dialog and perform other tasks. The defined progress dialogs are
+	 * protected static final int variables defined in ActivityGroups.
 	 */
 	public Handler progressDialogHandler = new Handler() {
 		@Override
@@ -86,7 +86,7 @@ public class SearchPlaces extends ListActivity {
 				renderSearchResults();
 				break;
 			case PROGRESS_LOAD_RESULTS:
-				if (mPlaces.getTotal() > 0){
+				if (mPlaces.getTotal() > 0) {
 					Loading.dismiss(mActivity, Loading.ACTIVITY_LOADING_PARENT, Loading.ACTIVITY_LOADING_TARGET);
 				} else {
 					Loading.noDisplay(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_NO_DISPLAY);
@@ -109,20 +109,18 @@ public class SearchPlaces extends ListActivity {
 			Utilities.setupActivityBreadcrumbEndText(mActivity, mPlaces.getTotal() + " " + getString(R.string.search_total_count));
 			progressDialogHandler.sendEmptyMessage(PROGRESS_LOAD_RESULTS);
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to initialize places.", e);
+			e.printStackTrace();
 			Loading.failed(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_FAILED_LOAD);
 		}
 	}
 
 	public PlacesList search(String searchTerms) {
-		Utilities.debugLog(this, "Searching places.");
 		PlacesInterface iFace = mAuthorize.flickr.getPlacesInterface();
 		PlacesList result;
 		try {
 			result = iFace.find(searchTerms);
-			Utilities.debugLog(mContext, "Found: " + result.size());
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to search for: " + searchTerms, e);
+			e.printStackTrace();
 			return null;
 		}
 
@@ -133,7 +131,6 @@ public class SearchPlaces extends ListActivity {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			Place place = (Place) mPlaces.get(position);
 			Intent intent = new Intent(SearchPlaces.this, ActivityPhotoStream.class);
-			Utilities.debugLog(this, "PlaceId is "+place.getPlaceId());
 			intent.putExtra(Flicka.INTENT_EXTRA_ACTIVITY_NSID, place.getPlaceId().toString());
 			intent.putExtra(Flicka.INTENT_EXTRA_PHOTO_STREAM_TYPE, ActivityPhotoStream.PHOTO_STREAM_TYPE_PLACE);
 			startActivity(intent);
@@ -149,7 +146,8 @@ public class SearchPlaces extends ListActivity {
 	}
 
 	/**
-	 * This is an adapter class that adds certain view functionalities to an array list.
+	 * This is an adapter class that adds certain view functionalities to an
+	 * array list.
 	 */
 	private class PlacesAdapter extends ArrayAdapter<Place> {
 		private final PlacesList items;
@@ -157,9 +155,11 @@ public class SearchPlaces extends ListActivity {
 		/**
 		 * The constructor. Note the reference to super.
 		 * 
-		 * @param Context context
+		 * @param Context
+		 *            context
 		 * @param int textViewResourceId
-		 * @param ArrayList<Group> items
+		 * @param ArrayList
+		 *            <Group> items
 		 */
 		@SuppressWarnings("unchecked")
 		public PlacesAdapter(Context context, int textViewResourceId, PlacesList items) {
@@ -171,17 +171,21 @@ public class SearchPlaces extends ListActivity {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			if (view == null) {
-				LayoutInflater viewInflator = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				LayoutInflater viewInflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				view = viewInflator.inflate(R.layout.row_places_search, null);
 			}
 
 			Place place = (Place) items.get(position);
 			if (place != null) {
 				final TextView placeName = (TextView) view.findViewById(R.id.placename);
-
 				placeName.setText(place.getName());
 			} else {
-				Utilities.debugLog(this, "Place should not be null! Position: " + position);
+				try {
+					throw new Exception("Couldn't get Place.");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 			return view;

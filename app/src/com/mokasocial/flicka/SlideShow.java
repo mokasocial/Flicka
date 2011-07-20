@@ -4,22 +4,22 @@ import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.aetrion.flickr.photos.Photo;
-
 import android.graphics.Bitmap;
+
+import com.aetrion.flickr.photos.Photo;
 
 /**
  * A container for all the possible SlideShow parameters. Usually to use within
  * the intent extras via Bundle.
- *
+ * 
  */
 public class SlideShow {
 	/**
 	 * The current item which is being displayed. The consuming script will then
 	 * in/decrement from this number.
 	 * 
-	 * NOTE: Flickr uses a 1 based numbering system for the lookups of items. That's
-	 * why you'll see "position + 1" when this is being set.
+	 * NOTE: Flickr uses a 1 based numbering system for the lookups of items.
+	 * That's why you'll see "position + 1" when this is being set.
 	 */
 	static final String CURRENT_ITEM = "currentItem";
 
@@ -55,9 +55,8 @@ public class SlideShow {
 		mPhotoMap = new HashMap<String, SoftReference<Photo>>();
 	}
 
-	public static SlideShow getSlideShow()
-	{
-		synchronized(SlideShow.class) {
+	public static SlideShow getSlideShow() {
+		synchronized (SlideShow.class) {
 			if (mInstance == null) {
 				mInstance = new SlideShow();
 			}
@@ -67,7 +66,6 @@ public class SlideShow {
 
 	public Bitmap getBitmap(String urlString) {
 		if (mBitmapMap.containsKey(urlString)) {
-			Utilities.debugLog(this, "Found cached image.");
 			SoftReference<Bitmap> softReference = mBitmapMap.get(urlString);
 			return softReference.get();
 		}
@@ -81,7 +79,6 @@ public class SlideShow {
 
 	public Photo getPhoto(String photoId) {
 		if (mPhotoMap.containsKey(photoId)) {
-			Utilities.debugLog(this, "Found cached photo.");
 			SoftReference<Photo> softReference = mPhotoMap.get(photoId);
 			return softReference.get();
 		}

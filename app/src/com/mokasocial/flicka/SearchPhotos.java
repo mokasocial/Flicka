@@ -76,50 +76,50 @@ public class SearchPhotos extends Activity implements OnScrollListener {
 		mRawSearchParams = extras.getBundle(Flicka.INTENT_EXTRA_SEARCH_PARAMS);
 		mSearchParams = new SearchParameters();
 
-		// Grab stuff from bundle and convert it to the Search Parameters format.
+		// Grab stuff from bundle and convert it to the Search Parameters
+		// format.
 		String searchParamText = mRawSearchParams.getString(SearchPhotos.SEARCH_PARAM_TEXT);
-		if(searchParamText != null) {
+		if (searchParamText != null) {
 			mSearchParams.setText(searchParamText);
 		}
 
 		String[] searchParamTags = mRawSearchParams.getStringArray(SearchPhotos.SEARCH_PARAM_TAGS);
-		if(searchParamTags != null) {
+		if (searchParamTags != null) {
 			mSearchParams.setTags(searchParamTags);
 		}
 
 		// Start the retrieval of Groups thread.
-		Thread retrieveThread =  new Thread(null, rRetrievePhotos, Flicka.FLICKA_THREAD_NAME);
+		Thread retrieveThread = new Thread(null, rRetrievePhotos, Flicka.FLICKA_THREAD_NAME);
 		retrieveThread.start();
 	}
 
-	public PhotoList search(SearchParameters searchParameters)  {
-		Utilities.debugLog(this, "Searching photos.");
+	public PhotoList search(SearchParameters searchParameters) {
 
 		PhotosInterface iFace = mAuthorize.flickr.getPhotosInterface();
 		PhotoList result;
 		try {
 			result = iFace.search(searchParameters, mResultsPerPage, mResultsPageNum);
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to search for: " + searchParameters.getText(), e);
+			e.printStackTrace();
 			return null;
 		}
 
 		return result;
 	}
-	
+
 	/**
 	 * Start a thread to get more search results.
 	 */
 	@SuppressWarnings("unchecked")
 	private void searchMorePhotos() {
-		Thread searchMoreThread = new Thread(){
+		Thread searchMoreThread = new Thread() {
 			@Override
 			public void run() {
 				mResultsPageNum++;
 				PhotoList temp = search(mSearchParams);
-				if (temp != null){
+				if (temp != null) {
 					mPhotos.addAll(temp);
-				}				
+				}
 				progressDialogHandler.sendEmptyMessage(PROGRESS_SEARCH_MORE_COMPLETE);
 			}
 		};
@@ -136,23 +136,23 @@ public class SearchPhotos extends Activity implements OnScrollListener {
 	};
 
 	/**
-	 * This can be invoked from within a thread upon it's completion to close a progress
-	 * dialog and perform other tasks. The defined progress dialogs are protected static final
-	 * int variables defined in ActivityGroups.
+	 * This can be invoked from within a thread upon it's completion to close a
+	 * progress dialog and perform other tasks. The defined progress dialogs are
+	 * protected static final int variables defined in ActivityGroups.
 	 */
 	public Handler progressDialogHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-				case PROGRESS_SEARCH_COMPLETE:
-					Loading.update(mActivity, Loading.ACTIVITY_LOADING_TEXT, R.string.progress_loading_photos);
-					renderViewPhotos();
-					break;
-				case PROGRESS_LOAD_PHOTOS:	
-					break;
-				case PROGRESS_SEARCH_MORE_COMPLETE:
-					mImageAdapter.notifyDataSetChanged();
-					break;
+			case PROGRESS_SEARCH_COMPLETE:
+				Loading.update(mActivity, Loading.ACTIVITY_LOADING_TEXT, R.string.progress_loading_photos);
+				renderViewPhotos();
+				break;
+			case PROGRESS_LOAD_PHOTOS:
+				break;
+			case PROGRESS_SEARCH_MORE_COMPLETE:
+				mImageAdapter.notifyDataSetChanged();
+				break;
 			}
 
 			super.handleMessage(msg);
@@ -172,20 +172,20 @@ public class SearchPhotos extends Activity implements OnScrollListener {
 			final GridView photosGridView = (GridView) findViewById(R.id.photo_stream_grid_view);
 			mImageAdapter = new ImageAdapter(mContext);
 			photosGridView.setAdapter(mImageAdapter);
-			photosGridView.setOnItemClickListener(photoListItemClickListener);	
+			photosGridView.setOnItemClickListener(photoListItemClickListener);
 			photosGridView.setVerticalScrollBarEnabled(false);
-			
+
 			Loading.dismiss(mActivity, Loading.ACTIVITY_LOADING_PARENT, Loading.ACTIVITY_LOADING_TARGET);
 			Utilities.setupActivityBreadcrumbEndText(mActivity, mPhotos.getTotal() + " " + getString(R.string.group_total_count));
 		} catch (Exception e) {
-			Utilities.errorOccurred(this, "Unable to initialize photos.", e);
+			e.printStackTrace();
 			Loading.failed(mActivity, Loading.ACTIVITY_LOADING_LAYOUT, Loading.ACTIVITY_FAILED_LOAD);
 		}
 	}
-	
+
 	/**
-	 * A custom adapter designed to lazy load images while the user scrolls and they become visible in
-	 * the view.
+	 * A custom adapter designed to lazy load images while the user scrolls and
+	 * they become visible in the view.
 	 */
 	private class ImageAdapter extends BaseAdapter {
 		private final Context mContext;
@@ -223,7 +223,7 @@ public class SearchPhotos extends Activity implements OnScrollListener {
 
 			final Photo photo = (Photo) getItem(position);
 
-			if(!mScrolling) {
+			if (!mScrolling) {
 				mDraw.fetchDrawableOnThread(photo.getSmallSquareUrl(), imageView);
 			} else {
 				imageView.setImageDrawable(mResources.getDrawable(R.drawable.loading_user_icon));
@@ -236,16 +236,15 @@ public class SearchPhotos extends Activity implements OnScrollListener {
 	/**
 	 * Implementation of the OnScrollListener. This is called during a scroll.
 	 */
-	public void onScroll(AbsListView view, int firstVisibleItem,
-			int visibleItemCount, int totalItemCount) {
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 	}
 
 	/**
-	 * Implementation of the OnScrollListener. This is called when the scroll state is changed.
-	 * We really only care about the idle state.
+	 * Implementation of the OnScrollListener. This is called when the scroll
+	 * state is changed. We really only care about the idle state.
 	 */
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		switch(scrollState) {
+		switch (scrollState) {
 		case OnScrollListener.SCROLL_STATE_IDLE:
 			mScrolling = false;
 			mImageAdapter.notifyDataSetChanged();
@@ -255,7 +254,7 @@ public class SearchPhotos extends Activity implements OnScrollListener {
 			break;
 		}
 	}
-	
+
 	/**
 	 * Show the appropriate layout when the menu button is pressed.
 	 * 
@@ -269,15 +268,16 @@ public class SearchPhotos extends Activity implements OnScrollListener {
 	}
 
 	/**
-	 * Determine and execute which action to take when a menu item has been selected from
-	 * the menu that is shown when the menu button is pressed.
+	 * Determine and execute which action to take when a menu item has been
+	 * selected from the menu that is shown when the menu button is pressed.
 	 * 
 	 * @return boolean
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		// This needs some logic help. The user may click on home before authenticate is finished.
+		// This needs some logic help. The user may click on home before
+		// authenticate is finished.
 		case R.id.load_more_results:
 			searchMorePhotos();
 			return true;
